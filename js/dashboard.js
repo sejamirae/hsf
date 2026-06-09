@@ -58,6 +58,7 @@ const Dashboard = (() => {
     document.getElementById("cfg-fechar").addEventListener("click", fecharConfig);
     document.getElementById("cfg-cancelar").addEventListener("click", fecharConfig);
     document.getElementById("cfg-salvar").addEventListener("click", salvarConfigModal);
+    document.getElementById("btn-voltar").addEventListener("click", () => voltarParaPeriodo(CONFIG.PERIODO_INICIAL));
 
     document.querySelectorAll(".btn-cat").forEach(b =>
       b.addEventListener("click", () => aplicarCategoria(b.dataset.cat)));
@@ -153,15 +154,15 @@ const Dashboard = (() => {
 
   function atualizarLabelPeriodo() {
     const map = { semana: "Semana atual", mes: "Mês atual", custom: "Período personalizado" };
-    let txt = (_drill ? "Detalhe" : (map[estado.periodo] || ""));
+    let txt = (_drill ? "Detalhe do período" : (map[estado.periodo] || ""));
     if (_filtrados.length) {
       const a = _filtrados[0].data, b = _filtrados[_filtrados.length - 1].data;
       txt += `  ·  ${Data.fmtDiaLongo(a)} a ${Data.fmtDiaLongo(b)}`;
-      if (_drill) txt += "  ·  clique em Semana/Mês atual para voltar";
     } else {
       txt += "  ·  sem registros neste período";
     }
     document.getElementById("periodo-label").textContent = txt;
+    document.getElementById("btn-voltar").classList.toggle("oculto", !_drill);
   }
 
   /* ---------- seletores de metrica por categoria ---------- */

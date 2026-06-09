@@ -180,6 +180,12 @@ body {
 #periodo-label {
   padding: 10px clamp(16px, 4vw, 40px) 0; font-size: .82rem; color: var(--texto-sec);
 }
+#btn-voltar {
+  margin: 8px 0 0 clamp(16px, 4vw, 40px); font-size: .8rem; font-weight: 600; cursor: pointer;
+  color: var(--dourado); background: var(--dourado-suave);
+  border: var(--r-px) solid var(--borda-d); padding: 7px 14px; border-radius: 9px; transition: .18s;
+}
+#btn-voltar:hover { background: rgba(215,179,119,.3); }
 
 /* ===================== GRID PRINCIPAL ===================== */
 main { padding: 18px clamp(16px, 4vw, 40px) 48px; display: flex; flex-direction: column; gap: 22px; }

@@ -74,7 +74,7 @@ const CONFIG = {
 
   /* --- Comportamento --------------------------------------- */
   VISAO_INICIAL: "diario",      // mantido para compatibilidade; o painel deriva a visao do periodo
-  PERIODO_INICIAL: "semana",    // semana | mes | custom
+  PERIODO_INICIAL: "mes",       // mes | semana | custom
   INICIO_SEMANA: 0,             // 0 = domingo, 1 = segunda-feira
   ITENS_POR_PAGINA: 10,
 
