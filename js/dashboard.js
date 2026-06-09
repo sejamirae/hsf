@@ -9,6 +9,7 @@
 const Dashboard = (() => {
 
   const C = CONFIG.CORES;
+  let FAIXAS = JSON.parse(JSON.stringify(CONFIG.FAIXAS_PADRAO));  // pode ser sobrescrito pela config remota
   const estado = {
     periodo:   CONFIG.PERIODO_INICIAL,   // hoje|ontem|7dias|semana|mes|total|custom
     visao:     CONFIG.VISAO_INICIAL,     // diario|semanal|mensal|total
@@ -26,6 +27,10 @@ const Dashboard = (() => {
     aplicarTemaCharts();
     ligarEventos();
     await Data.carregar();
+    const cfg = Data.config && Data.config();
+    if (cfg && cfg.sf && cfg.ext && Array.isArray(cfg.sf.bandas) && Array.isArray(cfg.ext.bandas)) {
+      FAIXAS = cfg;
+    }
     document.getElementById("ultima-atualizacao").textContent =
       "Atualizado em " + new Date().toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" });
     removerSkeleton();
@@ -39,8 +44,18 @@ const Dashboard = (() => {
         estado.periodo = b.dataset.periodo;
         marcarAtivo(".btn-periodo", b);
         document.getElementById("custom-range").classList.toggle("oculto", estado.periodo !== "custom");
-        if (estado.periodo !== "custom") { estado.pagina = 1; renderTudo(); }
+        if (estado.periodo === "custom") {
+          document.getElementById("periodo-label").textContent =
+            "Selecione as datas e clique em Aplicar";
+        } else {
+          estado.pagina = 1; renderTudo();
+        }
       }));
+
+    document.getElementById("btn-config").addEventListener("click", abrirConfig);
+    document.getElementById("cfg-fechar").addEventListener("click", fecharConfig);
+    document.getElementById("cfg-cancelar").addEventListener("click", fecharConfig);
+    document.getElementById("cfg-salvar").addEventListener("click", salvarConfigModal);
 
     document.querySelectorAll(".btn-cat").forEach(b =>
       b.addEventListener("click", () => {
@@ -142,8 +157,8 @@ const Dashboard = (() => {
     const cards = [
       kpi("Atendimentos", totAt, "", subBreak(agg.atSF, agg.atExt)),
       kpi("Internações", totInt, "", subBreak(agg.intSF, agg.intExt)),
-      kpiCor("Conversão SF", agg.convSF, avaliarConvSF(agg.convSF)),
-      kpiCor("Conversão Ext", agg.convExt, avaliarConvExt(agg.convExt)),
+      kpiCor("Conversão SF", agg.convSF, avaliar(agg.convSF, "sf")),
+      kpiCor("Conversão Ext", agg.convExt, avaliar(agg.convExt, "ext")),
       kpi("Média Diária", medTot, "", subMedia),
       kpiVar("Variação de Atendimentos", varAt, "no período vs. anterior"),
       kpiVar("Variação de Internações", varInt, "no período vs. anterior")
@@ -152,17 +167,22 @@ const Dashboard = (() => {
     document.querySelectorAll(".kpi-num[data-alvo]").forEach(animarNumero);
   }
 
-  /* faixas de cor da conversao */
-  function avaliarConvSF(v) {
-    if (v < 2)  return { cor: "#2E8C66", rotulo: "dentro da meta (< 2%)" };
-    if (v <= 4) return { cor: "#D4920F", rotulo: "atenção (2–4%)" };
-    return { cor: "#C03540", rotulo: "acima do limite (> 4%)" };
+  /* avaliacao da conversao conforme as faixas configuradas */
+  function avaliar(v, g) {
+    const bandas = FAIXAS[g].bandas;
+    for (const b of bandas) if (v < b.ate) return { cor: b.cor, rotulo: b.rotulo };
+    const ult = bandas[bandas.length - 1];
+    return { cor: ult.cor, rotulo: ult.rotulo };
   }
-  function avaliarConvExt(v) {
-    if (v < 4)  return { cor: "#C03540", rotulo: "crítico (< 4%)" };
-    if (v < 6)  return { cor: "#D4920F", rotulo: "regular (4–6%)" };
-    if (v <= 8) return { cor: "#2E8C66", rotulo: "bom (6–8%)" };
-    return { cor: "#2D78B4", rotulo: "ótimo (> 8%)" };
+  function faixasGrafico(g) {
+    let de = 0; const out = [];
+    FAIXAS[g].bandas.forEach(b => { out.push({ de, ate: b.ate, cor: hexA(b.cor, 0.16) }); de = b.ate; });
+    return out;
+  }
+  function ymaxGrafico(g) {
+    const bandas = FAIXAS[g].bandas; let m = 0;
+    for (let i = 0; i < bandas.length - 1; i++) m = Math.max(m, bandas[i].ate);
+    return Math.max(6, Math.ceil(m * 1.5));
   }
 
   const fmtInt = (n) => Math.round(n).toLocaleString("pt-BR");
@@ -309,39 +329,37 @@ const Dashboard = (() => {
 
     /* 3. Taxa de conversao + faixas de cor */
     const ds3 = [];
-    if (mostraSF())  ds3.push(linha("Conversão SF", ag.map(g => g.convSF), "#062F3A", false));
-    if (mostraExt()) ds3.push(linha("Conversão Ext", ag.map(g => g.convExt), "#062F3A", false));
-    // faixas coloridas conforme a origem selecionada (cada canal tem regras diferentes)
+    if (mostraSF())  ds3.push(linha("Conversão SF", ag.map(g => g.convSF), COR_SF, false));
+    if (mostraExt()) ds3.push(linha("Conversão Ext", ag.map(g => g.convExt), COR_EXT, false));
     let faixas = null, ymax;
-    if (estado.categoria === "sf") {
-      faixas = [
-        { de: 0, ate: 2,   cor: "rgba(46,140,102,.16)" },   // verde
-        { de: 2, ate: 4,   cor: "rgba(212,146,15,.16)"  },   // laranja
-        { de: 4, ate: 999, cor: "rgba(192,53,64,.14)"   }    // vermelho
-      ];
-      ymax = 6;
-    } else if (estado.categoria === "ext") {
-      faixas = [
-        { de: 0, ate: 4,   cor: "rgba(192,53,64,.14)"   },   // vermelho
-        { de: 4, ate: 6,   cor: "rgba(232,196,40,.20)"  },   // amarelo
-        { de: 6, ate: 8,   cor: "rgba(46,140,102,.16)"  },   // verde
-        { de: 8, ate: 999, cor: "rgba(45,120,180,.15)"  }    // azul
-      ];
-      ymax = 14;
-    }
-    criar("g-conversao", "line", labels, ds3,
-      { y: { ticks: { callback: v => v + "%" }, suggestedMax: ymax } },
-      faixas ? { plugins: { bandas: { faixas } } } : null);
+    if (estado.categoria === "sf")  { faixas = faixasGrafico("sf");  ymax = ymaxGrafico("sf"); }
+    else if (estado.categoria === "ext") { faixas = faixasGrafico("ext"); ymax = ymaxGrafico("ext"); }
+    else { faixas = null; ymax = Math.max(ymaxGrafico("sf"), ymaxGrafico("ext")); }
+    criarConversao(labels, ds3, faixas, ymax);
 
-    /* 4. Distribuicao SF x Externos (donut com %) */
+    /* 4. Distribuicao — reage a Origem selecionada */
+    let dLabels, dData, dCores, dTitulo, dCentro;
     const tSF = _filtrados.reduce((s, r) => s + r.atSF, 0);
     const tEX = _filtrados.reduce((s, r) => s + r.atExt, 0);
-    const totalDist = (tSF + tEX) || 1;
+    if (estado.categoria === "ambos") {
+      dLabels = ["SF", "Externos"]; dData = [tSF, tEX]; dCores = [COR_SF, COR_EXT];
+      dTitulo = "Distribuição de Atendimentos · SF × Externos"; dCentro = tSF + tEX;
+    } else {
+      const at  = estado.categoria === "sf" ? tSF : tEX;
+      const int = _filtrados.reduce((s, r) => s + (estado.categoria === "sf" ? r.intSF : r.intExt), 0);
+      dLabels = ["Internações", "Sem internação"];
+      dData = [int, Math.max(at - int, 0)];
+      dCores = [COR_SF, hexA(COR_EXT, 0.45)];
+      dTitulo = (estado.categoria === "sf" ? "SF" : "Externos") + " · Internações × Atendimentos";
+      dCentro = at;
+    }
+    document.getElementById("titulo-distribuicao").textContent = dTitulo;
+    const totalDist = dData.reduce((a, b) => a + b, 0) || 1;
     destruir("g-distribuicao");
     graficos["g-distribuicao"] = new Chart(ctx("g-distribuicao"), {
       type: "doughnut",
-      data: { labels: ["SF", "Externos"],
-        datasets: [{ data: [tSF, tEX], backgroundColor: [COR_SF, COR_EXT],
+      data: { labels: dLabels,
+        datasets: [{ data: dData, backgroundColor: dCores,
           borderColor: C.fundo, borderWidth: 3, hoverOffset: 8 }] },
       options: {
         cutout: "62%", responsive: true, maintainAspectRatio: false,
@@ -354,31 +372,73 @@ const Dashboard = (() => {
       plugins: [{
         id: "pctDonut",
         afterDraw(chart) {
-          const { ctx } = chart;
+          const cx = chart.ctx;
           const arcs = chart.getDatasetMeta(0).data;
           const dados = chart.data.datasets[0].data;
-          ctx.save();
-          ctx.font = "700 15px Inter, sans-serif";
-          ctx.fillStyle = "#FFFFFF"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+          cx.save();
+          cx.font = "700 14px Inter, sans-serif"; cx.fillStyle = "#FFFFFF";
+          cx.textAlign = "center"; cx.textBaseline = "middle";
           arcs.forEach((arc, i) => {
             const pct = Math.round(dados[i] / totalDist * 100);
-            if (pct < 6) return;
+            if (pct < 7) return;
             const ang = (arc.startAngle + arc.endAngle) / 2;
             const r = (arc.innerRadius + arc.outerRadius) / 2;
-            ctx.fillText(pct + "%", arc.x + Math.cos(ang) * r, arc.y + Math.sin(ang) * r);
+            cx.fillText(pct + "%", arc.x + Math.cos(ang) * r, arc.y + Math.sin(ang) * r);
           });
-          // total no centro
           const c = arcs[0];
           if (c) {
-            ctx.fillStyle = "#062F3A"; ctx.font = "800 20px Inter, sans-serif";
-            ctx.fillText(fmtInt(totalDist === 1 && tSF + tEX === 0 ? 0 : tSF + tEX), c.x, c.y - 6);
-            ctx.fillStyle = "#5A7280"; ctx.font = "600 10px Inter, sans-serif";
-            ctx.fillText("ATENDIMENTOS", c.x, c.y + 12);
+            cx.fillStyle = "#062F3A"; cx.font = "800 20px Inter, sans-serif";
+            cx.fillText(fmtInt(dCentro), c.x, c.y - 6);
+            cx.fillStyle = "#5A7280"; cx.font = "600 10px Inter, sans-serif";
+            cx.fillText("ATENDIMENTOS", c.x, c.y + 12);
           }
-          ctx.restore();
+          cx.restore();
         }
       }]
     });
+  }
+
+  /* grafico de conversao com legenda clicavel que liga/desliga faixas */
+  function criarConversao(labels, datasets, faixas, ymax) {
+    destruir("g-conversao");
+    graficos["g-conversao"] = new Chart(ctx("g-conversao"), {
+      type: "line",
+      data: { labels, datasets },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        interaction: { mode: "index", intersect: false },
+        animation: { duration: 700 },
+        plugins: {
+          legend: {
+            display: datasets.length > 1, position: "bottom",
+            onClick(e, item, legend) {
+              const ci = legend.chart;
+              ci.setDatasetVisibility(item.datasetIndex, !ci.isDatasetVisible(item.datasetIndex));
+              atualizarBandasConv(ci);
+              ci.update();
+            }
+          },
+          bandas: { faixas }
+        },
+        scales: {
+          x: { grid: { display: false }, ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 12 } },
+          y: { grid, beginAtZero: true, suggestedMax: ymax, ticks: { callback: v => v + "%" } }
+        }
+      }
+    });
+  }
+
+  function atualizarBandasConv(ci) {
+    const vis = ci.data.datasets
+      .map((d, i) => ({ label: d.label, vis: ci.isDatasetVisible(i) }))
+      .filter(v => v.vis);
+    let faixas = null, ymax = Math.max(ymaxGrafico("sf"), ymaxGrafico("ext"));
+    if (vis.length === 1) {
+      const g = /sf/i.test(vis[0].label) ? "sf" : "ext";
+      faixas = faixasGrafico(g); ymax = ymaxGrafico(g);
+    }
+    ci.options.plugins.bandas = { faixas };
+    ci.options.scales.y.suggestedMax = ymax;
   }
 
   const ctx = (id) => document.getElementById(id).getContext("2d");
@@ -446,8 +506,8 @@ const Dashboard = (() => {
         <td>${fmtInt(r.atExt)}</td>
         <td>${fmtInt(r.intSF)}</td>
         <td>${fmtInt(r.intExt)}</td>
-        <td class="${r.convSF >= CONFIG.META_CONVERSAO_SF ? "td-ok" : "td-alerta"}">${r.convSF.toFixed(1)}%</td>
-        <td class="${r.convExt >= CONFIG.META_CONVERSAO_EXT ? "td-ok" : "td-alerta"}">${r.convExt.toFixed(1)}%</td>
+        <td style="color:${avaliar(r.convSF, "sf").cor};font-weight:700">${r.convSF.toFixed(1)}%</td>
+        <td style="color:${avaliar(r.convExt, "ext").cor};font-weight:700">${r.convExt.toFixed(1)}%</td>
       </tr>`).join("") || `<tr><td colspan="7" class="vazio">Nenhum registro no período.</td></tr>`;
 
     document.getElementById("tabela-info").textContent =
@@ -515,6 +575,84 @@ const Dashboard = (() => {
   function removerSkeleton() {
     document.querySelectorAll(".skeleton").forEach(s => s.classList.remove("skeleton"));
     document.getElementById("app").classList.add("pronto");
+  }
+
+  /* ===================== CONFIGURACOES (faixas) ===================== */
+  function abrirConfig() {
+    document.getElementById("cfg-corpo").innerHTML =
+      grupoConfigHTML("sf", "Conversão SF") + grupoConfigHTML("ext", "Conversão Externa");
+    document.getElementById("cfg-status").textContent = "";
+    ligarEventosConfig();
+    document.getElementById("tela-config").classList.remove("oculto");
+  }
+  function fecharConfig() { document.getElementById("tela-config").classList.add("oculto"); }
+
+  function grupoConfigHTML(g, titulo) {
+    const bandas = FAIXAS[g].bandas;
+    const rows = bandas.map((b, i) => linhaConfigHTML(b, i === bandas.length - 1)).join("");
+    return `<div class="cfg-grupo" data-grupo="${g}">
+      <h4>${titulo} <span>(quanto ${g === "sf" ? "menor" : "maior"}, melhor)</span></h4>
+      <div class="cfg-linhas">${rows}</div>
+      <button type="button" class="cfg-add" data-grupo="${g}">+ Adicionar faixa</button>
+    </div>`;
+  }
+  function linhaConfigHTML(b, ultimo) {
+    return `<div class="cfg-linha">
+      <input class="cfg-cor" type="color" value="${b.cor}" title="Cor da faixa">
+      <input class="cfg-rotulo" type="text" value="${b.rotulo}" placeholder="nome do aviso">
+      <span class="cfg-ate-lbl">abaixo de</span>
+      <input class="cfg-ate" type="number" step="0.1" min="0" value="${ultimo ? "" : b.ate}"
+        ${ultimo ? 'placeholder="∞" disabled' : ""}>
+      <span class="cfg-pct">%</span>
+      <button type="button" class="cfg-rem" ${ultimo ? 'disabled title="faixa final (fixa)"' : ""}>✕</button>
+    </div>`;
+  }
+  function ligarEventosConfig() {
+    document.querySelectorAll(".cfg-add").forEach(btn => btn.onclick = () => {
+      const linhas = btn.parentElement.querySelector(".cfg-linhas");
+      const nova = document.createElement("div");
+      nova.className = "cfg-linha";
+      nova.innerHTML = linhaConfigHTML({ cor: "#D4920F", rotulo: "nova faixa", ate: 1 }, false);
+      linhas.insertBefore(nova, linhas.lastElementChild);   // antes da faixa final
+      ligarRemocao();
+    });
+    ligarRemocao();
+  }
+  function ligarRemocao() {
+    document.querySelectorAll(".cfg-rem").forEach(b => b.onclick = () => {
+      if (!b.disabled) b.closest(".cfg-linha").remove();
+    });
+  }
+  function lerConfigModal() {
+    const novo = {};
+    document.querySelectorAll(".cfg-grupo").forEach(gd => {
+      const g = gd.dataset.grupo;
+      const linhas = [...gd.querySelectorAll(".cfg-linha")].map(l => ({
+        cor: l.querySelector(".cfg-cor").value,
+        rotulo: (l.querySelector(".cfg-rotulo").value || "—").trim(),
+        ate: parseFloat(l.querySelector(".cfg-ate").value)
+      }));
+      const comLim = linhas.filter(b => !isNaN(b.ate)).sort((a, b) => a.ate - b.ate);
+      const catchAll = linhas.find(b => isNaN(b.ate)) || { cor: "#C03540", rotulo: "acima" };
+      catchAll.ate = 9999;
+      novo[g] = { titulo: FAIXAS[g].titulo, bandas: [...comLim, catchAll] };
+    });
+    return novo;
+  }
+  async function salvarConfigModal() {
+    const novo = lerConfigModal();
+    if (!novo.sf || !novo.ext) return;
+    FAIXAS = novo;
+    const status = document.getElementById("cfg-status");
+    if (CONFIG.API_URL) {
+      status.textContent = "Salvando para todos...";
+      try { await Data.salvarConfig(novo); status.textContent = "✓ Salvo para todos"; }
+      catch (e) { status.textContent = "Salvo nesta sessão (não sincronizou com a API)"; }
+    } else {
+      status.textContent = "Salvo nesta sessão (sem API configurada)";
+    }
+    renderTudo();
+    setTimeout(fecharConfig, 900);
   }
 
   return { iniciar };

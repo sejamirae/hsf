@@ -31,12 +31,20 @@ function doGet(e) {
     if (TOKEN && (!e || e.parameter.token !== TOKEN)) {
       return saida({ ok: false, erro: 'token invalido' }, e);
     }
+
+    // --- salvar configuracao de faixas (compartilhada entre todos) ---
+    if (e && e.parameter && e.parameter.action === 'saveConfig') {
+      PropertiesService.getScriptProperties().setProperty('HSF_CONFIG', e.parameter.config || '');
+      return saida({ ok: true, salvo: true }, e);
+    }
+
     const ss = SpreadsheetApp.getActiveSpreadsheet();
     const sheet = ABA ? ss.getSheetByName(ABA) : ss.getSheets()[0];
     if (!sheet) return saida({ ok: false, erro: 'aba nao encontrada' }, e);
 
     const valores = sheet.getDataRange().getValues();
-    if (valores.length < 2) return saida({ ok: true, registros: [] }, e);
+    const cfg = lerConfigSalva();
+    if (valores.length < 2) return saida({ ok: true, registros: [], config: cfg }, e);
 
     const cab = valores[0].map(norm);
     const idx = {
@@ -61,11 +69,17 @@ function doGet(e) {
         intExt: num(linha[idx.intExt])
       });
     }
-    return saida({ ok: true, total: registros.length, registros: registros }, e);
+    return saida({ ok: true, total: registros.length, registros: registros, config: cfg }, e);
 
   } catch (err) {
     return saida({ ok: false, erro: String(err) }, e);
   }
+}
+
+function lerConfigSalva() {
+  const s = PropertiesService.getScriptProperties().getProperty('HSF_CONFIG');
+  if (!s) return null;
+  try { return JSON.parse(s); } catch (x) { return null; }
 }
 
 /* ---------- saida JSON (com suporte a JSONP via ?callback=) ---------- */

@@ -33,11 +33,30 @@ const CONFIG = {
      e cole o resultado abaixo. */
   PASSWORD_HASH: "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92",
 
-  /* --- Faixas de cor da conversao (em %) -------------------
-     SF  : < 2 verde · 2 a 4 laranja · > 4 vermelho   (quanto menor, melhor)
-     Ext : < 4 vermelho · 4 a 6 amarelo · 6 a 8 verde · > 8 azul (quanto maior, melhor) */
-  META_CONVERSAO_SF: 2,
-  META_CONVERSAO_EXT: 8,
+  /* --- Faixas de cor da conversao (PADRAO) -----------------
+     Editaveis pelo botao de Configuracoes no cabecalho.
+     Cada faixa: { ate: limite superior (%), cor, rotulo }.
+     A ultima faixa (ate: 9999) e o "acima de tudo".
+     Avaliacao: a faixa vale para valores ABAIXO do seu "ate". */
+  FAIXAS_PADRAO: {
+    sf: {
+      titulo: "Conversão SF",
+      bandas: [
+        { ate: 2,    cor: "#2E8C66", rotulo: "dentro da meta" },
+        { ate: 4,    cor: "#D4920F", rotulo: "atenção" },
+        { ate: 9999, cor: "#C03540", rotulo: "acima do limite" }
+      ]
+    },
+    ext: {
+      titulo: "Conversão Ext",
+      bandas: [
+        { ate: 4,    cor: "#C03540", rotulo: "crítico" },
+        { ate: 6,    cor: "#D4920F", rotulo: "regular" },
+        { ate: 8,    cor: "#2E8C66", rotulo: "bom" },
+        { ate: 9999, cor: "#2D78B4", rotulo: "ótimo" }
+      ]
+    }
+  },
 
   /* --- Mapeamento de colunas da planilha -------------------
      A chave da esquerda e o nome interno usado pelo sistema.

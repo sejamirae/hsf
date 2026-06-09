@@ -50,6 +50,7 @@
       </div>
       <div class="topo-dir">
         <span id="ultima-atualizacao"></span>
+        <button id="btn-config" title="Configurações de metas e faixas" aria-label="Configurações">⚙</button>
         <button id="btn-sair">Sair</button>
       </div>
     </header>
@@ -99,7 +100,7 @@
           <div class="canvas-wrap"><canvas id="g-evolucao"></canvas></div>
         </div>
         <div class="painel alto col-4">
-          <h3>Distribuição SF × Externos</h3>
+          <h3 id="titulo-distribuicao">Distribuição SF × Externos</h3>
           <div class="canvas-wrap"><canvas id="g-distribuicao"></canvas></div>
         </div>
 
@@ -147,6 +148,25 @@
 
       <p class="rodape-creditos">Desenvolvido por <b>Mirae</b> · Painel confidencial · HSF</p>
     </main>
+
+    <!-- modal de configuracoes -->
+    <div id="tela-config" class="oculto">
+      <div class="cfg-card">
+        <div class="cfg-topo">
+          <h3>Configurações de Metas e Faixas</h3>
+          <button id="cfg-fechar" title="Fechar">✕</button>
+        </div>
+        <p class="cfg-ajuda">Defina as cores, os limites (%) e os nomes dos avisos de cada faixa de conversão. As alterações são salvas para <b>todos os usuários</b>.</p>
+        <div id="cfg-corpo"></div>
+        <div class="cfg-rodape">
+          <span id="cfg-status"></span>
+          <div class="cfg-acoes">
+            <button id="cfg-cancelar" class="cfg-btn-sec">Cancelar</button>
+            <button id="cfg-salvar" class="cfg-btn-pri">Salvar para todos</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- bibliotecas -->

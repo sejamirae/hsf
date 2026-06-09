@@ -70,8 +70,8 @@ body {
 .login-logos img { height: 52px; width: auto; }
 .login-logos img.logo-mirae { border-radius: 10px; }
 .login-logos img.logo-hsf {
-  border: 1px solid var(--borda); border-radius: 8px;
-  padding: 5px 8px; background: #FFFFFF; box-shadow: 0 2px 8px -4px rgba(6,47,58,.2);
+  border: 1px solid rgba(6,47,58,.16); border-radius: 10px;
+  padding: 6px 10px; background: #FFFFFF; box-shadow: 0 3px 10px -5px rgba(6,47,58,.25);
 }
 .login-logos .barra { width: 1px; height: 40px; background: var(--borda); }
 .login-card h1 { font-size: 1.18rem; font-weight: 700; color: var(--texto-pri); letter-spacing: .2px; }
@@ -120,16 +120,22 @@ body {
 .topo-logos { display: flex; align-items: center; gap: 16px; }
 .topo-logos img.logo-mirae { height: 44px; border-radius: 10px; box-shadow: 0 4px 14px -6px rgba(6,47,58,.25); }
 .topo-logos img.logo-hsf {
-  height: 40px; border: 1px solid var(--borda); border-radius: 8px;
-  padding: 4px 7px; background: #FFFFFF; box-shadow: 0 2px 8px -4px rgba(6,47,58,.18);
+  height: 42px; border: 1px solid rgba(6,47,58,.16); border-radius: 10px;
+  padding: 4px 9px; background: #FFFFFF; box-shadow: 0 3px 10px -5px rgba(6,47,58,.2);
 }
 .topo-logos .barra { width: 1px; height: 36px; background: var(--borda); }
 .topo-titulo { display: flex; flex-direction: column; }
 .topo-titulo b { color: var(--texto-pri); font-size: 1.08rem; font-weight: 700; letter-spacing: .2px; }
 .topo-titulo span { font-size: .78rem; color: var(--texto-sec); }
 
-.topo-dir { margin-left: auto; display: flex; align-items: center; gap: 14px; }
+.topo-dir { margin-left: auto; display: flex; align-items: center; gap: 12px; }
 #ultima-atualizacao { font-size: .74rem; color: var(--texto-sec); }
+#btn-config {
+  width: 38px; height: 38px; font-size: 1.1rem; line-height: 1; cursor: pointer;
+  color: var(--texto-pri); background: #FFFFFF; border: var(--r-px) solid var(--borda);
+  border-radius: 10px; transition: transform .3s, border-color .2s, color .2s;
+}
+#btn-config:hover { border-color: var(--dourado); color: var(--dourado); transform: rotate(40deg); }
 #btn-sair {
   font-size: .8rem; color: var(--texto-sec); cursor: pointer;
   background: transparent; border: var(--r-px) solid var(--borda);
@@ -325,3 +331,80 @@ td.vazio { text-align: center; color: var(--texto-sec); padding: 28px; }
 
 .rodape-creditos { text-align: center; font-size: .74rem; color: var(--texto-sec); padding: 8px 0 4px; }
 .rodape-creditos b { color: var(--dourado); font-weight: 700; }
+
+/* ===================== MODAL DE CONFIGURACOES ===================== */
+#tela-config {
+  position: fixed; inset: 0; z-index: 60;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(6,47,58,.45); backdrop-filter: blur(4px);
+  animation: fadeIn .25s ease; padding: 20px;
+}
+.cfg-card {
+  width: min(620px, 96vw); max-height: 90vh; overflow-y: auto;
+  background: #FFFFFF; border-radius: 18px; box-shadow: var(--sombra-forte);
+  border: var(--r-px) solid var(--borda);
+}
+.cfg-topo {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 24px 14px; border-bottom: var(--r-px) solid var(--borda);
+  position: sticky; top: 0; background: #FFFFFF; border-radius: 18px 18px 0 0;
+}
+.cfg-topo h3 { font-size: 1.05rem; color: var(--texto-pri); font-weight: 700; }
+#cfg-fechar {
+  width: 32px; height: 32px; border-radius: 8px; cursor: pointer;
+  background: #FFFFFF; border: var(--r-px) solid var(--borda); color: var(--texto-sec); font-size: .9rem;
+}
+#cfg-fechar:hover { border-color: var(--alerta); color: var(--alerta); }
+.cfg-ajuda { font-size: .82rem; color: var(--texto-sec); padding: 14px 24px 4px; }
+.cfg-ajuda b { color: var(--texto-pri); }
+#cfg-corpo { padding: 8px 24px 4px; }
+
+.cfg-grupo { padding: 14px 0; border-bottom: var(--r-px) solid var(--borda); }
+.cfg-grupo h4 { font-size: .9rem; color: var(--texto-pri); font-weight: 700; margin-bottom: 10px; }
+.cfg-grupo h4 span { font-weight: 500; color: var(--texto-sec); font-size: .76rem; }
+.cfg-linhas { display: flex; flex-direction: column; gap: 8px; }
+.cfg-linha { display: flex; align-items: center; gap: 8px; }
+.cfg-linha .cfg-cor {
+  width: 38px; height: 34px; padding: 2px; border: var(--r-px) solid var(--borda);
+  border-radius: 8px; background: #fff; cursor: pointer; flex: none;
+}
+.cfg-linha .cfg-rotulo {
+  flex: 1 1 auto; min-width: 80px; padding: 8px 10px; font-size: .84rem;
+  border: var(--r-px) solid var(--borda); border-radius: 8px; color: var(--texto-pri); background: #FAFAFA;
+}
+.cfg-linha .cfg-ate-lbl { font-size: .76rem; color: var(--texto-sec); flex: none; }
+.cfg-linha .cfg-ate {
+  width: 72px; padding: 8px 8px; font-size: .84rem; flex: none;
+  border: var(--r-px) solid var(--borda); border-radius: 8px; color: var(--texto-pri); background: #FAFAFA;
+}
+.cfg-linha .cfg-pct { font-size: .8rem; color: var(--texto-sec); flex: none; }
+.cfg-linha .cfg-rem {
+  width: 30px; height: 30px; border-radius: 8px; cursor: pointer; flex: none;
+  background: #FFFFFF; border: var(--r-px) solid var(--borda); color: var(--texto-sec); font-size: .8rem;
+}
+.cfg-linha .cfg-rem:hover:not(:disabled) { border-color: var(--alerta); color: var(--alerta); }
+.cfg-linha .cfg-rem:disabled { opacity: .3; cursor: default; }
+.cfg-add {
+  margin-top: 10px; font-size: .8rem; font-weight: 600; cursor: pointer; color: var(--dourado);
+  background: var(--dourado-suave); border: var(--r-px) dashed var(--borda-d);
+  padding: 8px 14px; border-radius: 9px;
+}
+.cfg-add:hover { background: rgba(215,179,119,.3); }
+
+.cfg-rodape {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  padding: 16px 24px 20px; position: sticky; bottom: 0; background: #FFFFFF;
+}
+#cfg-status { font-size: .8rem; color: var(--texto-sec); }
+.cfg-acoes { display: flex; gap: 8px; margin-left: auto; }
+.cfg-btn-sec {
+  font-size: .85rem; cursor: pointer; color: var(--texto-sec);
+  background: #FFFFFF; border: var(--r-px) solid var(--borda); padding: 10px 18px; border-radius: 10px;
+}
+.cfg-btn-sec:hover { border-color: var(--texto-sec); }
+.cfg-btn-pri {
+  font-size: .85rem; font-weight: 700; cursor: pointer; color: #FFFFFF;
+  background: linear-gradient(180deg, #062F3A, #0B3F4D); border: none; padding: 10px 20px; border-radius: 10px;
+  box-shadow: 0 8px 18px -10px rgba(6,47,58,.5);
+}
+.cfg-btn-pri:hover { filter: brightness(1.08); }

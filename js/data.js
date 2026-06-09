@@ -11,7 +11,8 @@
 const Data = (() => {
 
   let _registros = [];          // base completa em memoria
-  let _origem = "demo";         // "google" | "demo"
+  let _origem = "demo";         // "api" | "google" | "demo"
+  let _config = null;           // config remota (faixas) vinda da API
 
   /* ---------- utilitarios de texto ---------- */
   const norm = (s) => (s || "")
@@ -92,6 +93,7 @@ const Data = (() => {
     if (CONFIG.API_TOKEN) url += (url.includes("?") ? "&" : "?") + "token=" + encodeURIComponent(CONFIG.API_TOKEN);
     const json = CONFIG.API_JSONP ? await lerJSONP(url) : await (await fetch(url)).json();
     if (json && json.erro) throw new Error(json.erro);
+    _config = (json && json.config) ? json.config : null;
     const hojeFim = new Date(); hojeFim.setHours(23, 59, 59, 999);
     return (json.registros || []).map(r => enriquecer({
       data:   new Date(r.dia + "T00:00:00"),
@@ -277,10 +279,22 @@ const Data = (() => {
     return d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric" });
   }
 
+  /* ---------- salva config (faixas) para todos via API ---------- */
+  function salvarConfig(obj) {
+    if (!CONFIG.API_URL) return Promise.reject(new Error("sem API"));
+    let u = CONFIG.API_URL + (CONFIG.API_URL.includes("?") ? "&" : "?")
+      + "action=saveConfig&config=" + encodeURIComponent(JSON.stringify(obj));
+    if (CONFIG.API_TOKEN) u += "&token=" + encodeURIComponent(CONFIG.API_TOKEN);
+    _config = obj;
+    return lerJSONP(u);   // JSONP: grava sem problemas de CORS
+  }
+
   return {
     carregar,
     registros: () => _registros,
     origem: () => _origem,
+    config: () => _config,
+    salvarConfig,
     filtrarPeriodo,
     agregar,
     enriquecer,
