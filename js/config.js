@@ -27,15 +27,17 @@ const CONFIG = {
 
   /* --- Seguranca (acesso casual) ---------------------------
      Hash SHA-256 da senha. A senha NUNCA fica em texto puro.
-     Senha atual: 131154
+     Senha atual: 123456
      Para trocar a senha, gere um novo hash em
      https://emn178.github.io/online-tools/sha256.html
      e cole o resultado abaixo. */
-  PASSWORD_HASH: "bf5af652864726d0ee31246e7e7b2febcb0bb8d6251324b990d8c5ab2e9aa7bd",
+  PASSWORD_HASH: "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92",
 
-  /* --- Metas operacionais (em %) --------------------------- */
-  META_CONVERSAO_SF: 2,         // Meta de conversao Sao Francisco
-  META_CONVERSAO_EXT: 10,       // Meta de conversao Externos
+  /* --- Faixas de cor da conversao (em %) -------------------
+     SF  : < 2 verde · 2 a 4 laranja · > 4 vermelho   (quanto menor, melhor)
+     Ext : < 4 vermelho · 4 a 6 amarelo · 6 a 8 verde · > 8 azul (quanto maior, melhor) */
+  META_CONVERSAO_SF: 2,
+  META_CONVERSAO_EXT: 8,
 
   /* --- Mapeamento de colunas da planilha -------------------
      A chave da esquerda e o nome interno usado pelo sistema.

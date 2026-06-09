@@ -123,35 +123,46 @@ const Dashboard = (() => {
 
     const totAt  = estado.categoria === "sf" ? agg.atSF  : estado.categoria === "ext" ? agg.atExt  : agg.atTotal;
     const totInt = estado.categoria === "sf" ? agg.intSF : estado.categoria === "ext" ? agg.intExt : agg.intTotal;
-    const mediaDia = f.length ? totAt / f.length : 0;
 
-    // melhor / pior dia (por atendimentos da categoria)
-    let melhor = null, pior = null;
-    for (const r of f) {
-      const v = totalAt(r);
-      if (!melhor || v > totalAt(melhor)) melhor = r;
-      if (!pior   || v < totalAt(pior))   pior = r;
-    }
+    // media diaria considerando APENAS dias preenchidos (com algum movimento)
+    const diasPreenchidos = f.filter(r => (r.atSF + r.atExt + r.intSF + r.intExt) > 0).length || 1;
+    const medSF  = Math.round(soma.atSF  / diasPreenchidos);
+    const medExt = Math.round(soma.atExt / diasPreenchidos);
+    const medTot = estado.categoria === "sf" ? medSF : estado.categoria === "ext" ? medExt : medSF + medExt;
+    const subMedia = estado.categoria === "ambos" ? `SF ${fmtInt(medSF)} · Ext ${fmtInt(medExt)}`
+                   : estado.categoria === "sf" ? "SF" : "Externos";
 
-    // crescimento semanal e mensal (base completa, independente do filtro)
-    const cw = somaIntervalo(intervaloSemana(0)), pw = somaIntervalo(intervaloSemana(-1));
-    const cm = somaIntervalo(intervaloMes(0)),   pm = somaIntervalo(intervaloMes(-1));
-    const crescSem = variacao(cw, pw);
-    const crescMes = variacao(cm, pm);
+    // variacao no periodo (atual x periodo anterior equivalente)
+    const ant = intervaloAnterior();
+    const antAt  = ant ? somaNoIntervalo(ant.ini, ant.fim, "at")  : 0;
+    const antInt = ant ? somaNoIntervalo(ant.ini, ant.fim, "int") : 0;
+    const varAt  = variacao(totAt, antAt);
+    const varInt = variacao(totInt, antInt);
 
     const cards = [
-      kpi("Atendimentos", totAt, "", subBreak(agg.atSF, agg.atExt), null),
-      kpi("Internações", totInt, "", subBreak(agg.intSF, agg.intExt), null),
-      kpiMeta("Conversão SF", agg.convSF, CONFIG.META_CONVERSAO_SF),
-      kpiMeta("Conversão Ext", agg.convExt, CONFIG.META_CONVERSAO_EXT),
-      kpi("Média Diária", Math.round(mediaDia), "", "atendimentos por dia", null),
-      kpi("Melhor Dia", melhor ? totalAt(melhor) : 0, "",
-          melhor ? `${Data.fmtDiaLongo(melhor.data)} · pior: ${pior ? totalAt(pior) : 0}` : "—", null),
-      kpiVar("Cresc. Semanal", crescSem, "semana atual × anterior"),
-      kpiVar("Cresc. Mensal", crescMes, "mês atual × anterior")
+      kpi("Atendimentos", totAt, "", subBreak(agg.atSF, agg.atExt)),
+      kpi("Internações", totInt, "", subBreak(agg.intSF, agg.intExt)),
+      kpiCor("Conversão SF", agg.convSF, avaliarConvSF(agg.convSF)),
+      kpiCor("Conversão Ext", agg.convExt, avaliarConvExt(agg.convExt)),
+      kpi("Média Diária", medTot, "", subMedia),
+      kpiVar("Variação de Atendimentos", varAt, "no período vs. anterior"),
+      kpiVar("Variação de Internações", varInt, "no período vs. anterior")
     ];
     document.getElementById("kpis").innerHTML = cards.join("");
     document.querySelectorAll(".kpi-num[data-alvo]").forEach(animarNumero);
+  }
+
+  /* faixas de cor da conversao */
+  function avaliarConvSF(v) {
+    if (v < 2)  return { cor: "#2E8C66", rotulo: "dentro da meta (< 2%)" };
+    if (v <= 4) return { cor: "#D4920F", rotulo: "atenção (2–4%)" };
+    return { cor: "#C03540", rotulo: "acima do limite (> 4%)" };
+  }
+  function avaliarConvExt(v) {
+    if (v < 4)  return { cor: "#C03540", rotulo: "crítico (< 4%)" };
+    if (v < 6)  return { cor: "#D4920F", rotulo: "regular (4–6%)" };
+    if (v <= 8) return { cor: "#2E8C66", rotulo: "bom (6–8%)" };
+    return { cor: "#2D78B4", rotulo: "ótimo (> 8%)" };
   }
 
   const fmtInt = (n) => Math.round(n).toLocaleString("pt-BR");
@@ -166,14 +177,11 @@ const Dashboard = (() => {
       <span class="kpi-sub">${sub}</span></article>`;
   }
 
-  function kpiMeta(titulo, valor, meta) {
-    const ok = valor >= meta;
-    const cls = ok ? "ok" : "alerta";
-    const seta = ok ? "▲" : "▼";
+  function kpiCor(titulo, valor, av) {
     return `<article class="kpi">
       <span class="kpi-titulo">${titulo}</span>
-      <span class="kpi-num ${cls}" data-alvo="${valor}" data-sufixo="%" data-dec="1">0</span>
-      <span class="kpi-sub"><span class="pill ${cls}">${seta} meta ${meta}%</span></span></article>`;
+      <span class="kpi-num" style="color:${av.cor}" data-alvo="${valor}" data-sufixo="%" data-dec="1">0</span>
+      <span class="kpi-sub"><span class="pill" style="color:${av.cor};background:${av.cor}1f">${av.rotulo}</span></span></article>`;
   }
 
   function kpiVar(titulo, v, sub) {
@@ -186,7 +194,7 @@ const Dashboard = (() => {
       <span class="kpi-sub">${sub}</span></article>`;
   }
 
-  /* intervalos para crescimento (a partir de hoje) */
+  /* intervalo do periodo anterior equivalente ao filtro atual */
   function intervaloSemana(offset) {
     const ini = Data.inicioSemana(new Date());
     ini.setDate(ini.getDate() + offset * 7);
@@ -199,10 +207,23 @@ const Dashboard = (() => {
     const fim = new Date(h.getFullYear(), h.getMonth() + offset + 1, 0, 23, 59, 59, 999);
     return { ini, fim };
   }
-  function somaIntervalo({ ini, fim }) {
+  function intervaloAnterior() {
+    if (estado.periodo === "semana") return intervaloSemana(-1);
+    if (estado.periodo === "mes")    return intervaloMes(-1);
+    // custom/outros: desloca pelo mesmo numero de dias do periodo selecionado
+    if (_filtrados.length) {
+      const ini = _filtrados[0].data, fim = _filtrados[_filtrados.length - 1].data;
+      const dias = Math.round((fim - ini) / 86400000) + 1;
+      const pIni = new Date(ini); pIni.setDate(pIni.getDate() - dias);
+      const pFim = new Date(ini); pFim.setDate(pFim.getDate() - 1); pFim.setHours(23, 59, 59, 999);
+      return { ini: pIni, fim: pFim };
+    }
+    return null;
+  }
+  function somaNoIntervalo(ini, fim, tipo) {
     return Data.registros()
       .filter(r => r.data >= ini && r.data <= fim)
-      .reduce((s, r) => s + totalAt(r), 0);
+      .reduce((s, r) => s + (tipo === "at" ? totalAt(r) : totalInt(r)), 0);
   }
   function variacao(atual, anterior) {
     if (!anterior) return atual ? 100 : 0;
@@ -225,8 +246,29 @@ const Dashboard = (() => {
   }
 
   /* ===================== GRAFICOS ===================== */
+  let _pluginRegistrado = false;
   function aplicarTemaCharts() {
     if (!window.Chart) return;
+    if (!_pluginRegistrado) {
+      Chart.register({
+        id: "bandas",
+        beforeDatasetsDraw(chart) {
+          const cfg = chart.options.plugins && chart.options.plugins.bandas;
+          if (!cfg || !cfg.faixas) return;
+          const y = chart.scales.y; if (!y) return;
+          const { ctx, chartArea } = chart;
+          ctx.save();
+          cfg.faixas.forEach(b => {
+            const yTopo = y.getPixelForValue(Math.min(b.ate, y.max));
+            const yBase = y.getPixelForValue(Math.max(b.de, y.min));
+            ctx.fillStyle = b.cor;
+            ctx.fillRect(chartArea.left, yTopo, chartArea.right - chartArea.left, yBase - yTopo);
+          });
+          ctx.restore();
+        }
+      });
+      _pluginRegistrado = true;
+    }
     Chart.defaults.color = "rgba(6,47,58,0.7)";
     Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
     Chart.defaults.font.size = 12;
@@ -265,61 +307,85 @@ const Dashboard = (() => {
     if (mostraExt()) ds2.push(barra("Internações Externos", ag.map(g => g.intExt), COR_INT_EXT));
     criar("g-internacoes", "bar", labels, ds2);
 
-    /* 3. Taxa de conversao + linhas de meta */
+    /* 3. Taxa de conversao + faixas de cor */
     const ds3 = [];
-    if (mostraSF()) {
-      ds3.push(linha("Conversão SF", ag.map(g => g.convSF), COR_SF, false));
-      ds3.push(metaLinha(`Meta SF ${CONFIG.META_CONVERSAO_SF}%`, labels.length, CONFIG.META_CONVERSAO_SF, COR_SF));
+    if (mostraSF())  ds3.push(linha("Conversão SF", ag.map(g => g.convSF), "#062F3A", false));
+    if (mostraExt()) ds3.push(linha("Conversão Ext", ag.map(g => g.convExt), "#062F3A", false));
+    // faixas coloridas conforme a origem selecionada (cada canal tem regras diferentes)
+    let faixas = null, ymax;
+    if (estado.categoria === "sf") {
+      faixas = [
+        { de: 0, ate: 2,   cor: "rgba(46,140,102,.16)" },   // verde
+        { de: 2, ate: 4,   cor: "rgba(212,146,15,.16)"  },   // laranja
+        { de: 4, ate: 999, cor: "rgba(192,53,64,.14)"   }    // vermelho
+      ];
+      ymax = 6;
+    } else if (estado.categoria === "ext") {
+      faixas = [
+        { de: 0, ate: 4,   cor: "rgba(192,53,64,.14)"   },   // vermelho
+        { de: 4, ate: 6,   cor: "rgba(232,196,40,.20)"  },   // amarelo
+        { de: 6, ate: 8,   cor: "rgba(46,140,102,.16)"  },   // verde
+        { de: 8, ate: 999, cor: "rgba(45,120,180,.15)"  }    // azul
+      ];
+      ymax = 14;
     }
-    if (mostraExt()) {
-      ds3.push(linha("Conversão Ext", ag.map(g => g.convExt), COR_EXT, false));
-      ds3.push(metaLinha(`Meta Ext ${CONFIG.META_CONVERSAO_EXT}%`, labels.length, CONFIG.META_CONVERSAO_EXT, COR_EXT));
-    }
-    criar("g-conversao", "line", labels, ds3, { y: { ticks: { callback: v => v + "%" } } });
+    criar("g-conversao", "line", labels, ds3,
+      { y: { ticks: { callback: v => v + "%" }, suggestedMax: ymax } },
+      faixas ? { plugins: { bandas: { faixas } } } : null);
 
-    /* 4. Comparativo semanal (semana atual x anterior, por categoria) */
-    const sa = Data.agregar(Data.filtrarPeriodo(Data.registros(), "semana"), "diario");
-    const semAnt = Data.filtrarPeriodo(Data.registros(), "custom", customSemAnterior());
-    const sant = Data.agregar(semAnt, "diario");
-    const DOW = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
-    const porDow = (arr) => { const m = {}; arr.forEach(g => m[g.data.getDay()] = totalAt(g)); return m; };
-    const ma = porDow(sa), mn = porDow(sant);
-    const ordem = CONFIG.INICIO_SEMANA === 0 ? [0, 1, 2, 3, 4, 5, 6] : [1, 2, 3, 4, 5, 6, 0];
-    criar("g-comparativo", "bar", ordem.map(d => DOW[d]), [
-      barra("Semana anterior", ordem.map(d => mn[d] || 0), hexA(COR_EXT, 0.55)),
-      barra("Semana atual", ordem.map(d => ma[d] || 0), COR_SF)
-    ]);
-
-    /* 5. Distribuicao SF x Externos (donut) */
+    /* 4. Distribuicao SF x Externos (donut com %) */
     const tSF = _filtrados.reduce((s, r) => s + r.atSF, 0);
     const tEX = _filtrados.reduce((s, r) => s + r.atExt, 0);
+    const totalDist = (tSF + tEX) || 1;
     destruir("g-distribuicao");
     graficos["g-distribuicao"] = new Chart(ctx("g-distribuicao"), {
       type: "doughnut",
       data: { labels: ["SF", "Externos"],
         datasets: [{ data: [tSF, tEX], backgroundColor: [COR_SF, COR_EXT],
           borderColor: C.fundo, borderWidth: 3, hoverOffset: 8 }] },
-      options: { cutout: "64%", plugins: { legend: { position: "bottom" } },
-        responsive: true, maintainAspectRatio: false }
+      options: {
+        cutout: "62%", responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { position: "bottom" },
+          tooltip: { callbacks: { label: (it) =>
+            ` ${it.label}: ${fmtInt(it.parsed)} (${Math.round(it.parsed / totalDist * 100)}%)` } }
+        }
+      },
+      plugins: [{
+        id: "pctDonut",
+        afterDraw(chart) {
+          const { ctx } = chart;
+          const arcs = chart.getDatasetMeta(0).data;
+          const dados = chart.data.datasets[0].data;
+          ctx.save();
+          ctx.font = "700 15px Inter, sans-serif";
+          ctx.fillStyle = "#FFFFFF"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+          arcs.forEach((arc, i) => {
+            const pct = Math.round(dados[i] / totalDist * 100);
+            if (pct < 6) return;
+            const ang = (arc.startAngle + arc.endAngle) / 2;
+            const r = (arc.innerRadius + arc.outerRadius) / 2;
+            ctx.fillText(pct + "%", arc.x + Math.cos(ang) * r, arc.y + Math.sin(ang) * r);
+          });
+          // total no centro
+          const c = arcs[0];
+          if (c) {
+            ctx.fillStyle = "#062F3A"; ctx.font = "800 20px Inter, sans-serif";
+            ctx.fillText(fmtInt(totalDist === 1 && tSF + tEX === 0 ? 0 : tSF + tEX), c.x, c.y - 6);
+            ctx.fillStyle = "#5A7280"; ctx.font = "600 10px Inter, sans-serif";
+            ctx.fillText("ATENDIMENTOS", c.x, c.y + 12);
+          }
+          ctx.restore();
+        }
+      }]
     });
-
-    /* 6. Ranking dos melhores periodos (barra horizontal) */
-    const rank = [...ag].sort((a, b) => totalAt(b) - totalAt(a)).slice(0, 7).reverse();
-    criar("g-ranking", "bar", rank.map(g => g.label),
-      [barra("Atendimentos", rank.map(g => totalAt(g)), COR_SF)],
-      null, { indexAxis: "y" });
-
-    /* 7. Tendencia acumulada (area) */
-    let acc = 0; const cum = ag.map(g => (acc += totalAt(g)));
-    criar("g-tendencia", "line", labels,
-      [linha("Acumulado", cum, COR_SF, true, 0.28)]);
   }
 
-  function customSemAnterior() {
-    const ini = Data.inicioSemana(new Date()); ini.setDate(ini.getDate() - 7);
-    const fim = new Date(ini); fim.setDate(fim.getDate() + 6);
-    const iso = (d) => d.toISOString().slice(0, 10);
-    return { ini: iso(ini), fim: iso(fim) };
+  const ctx = (id) => document.getElementById(id).getContext("2d");
+  function hexA(hex, a) {
+    if (hex.startsWith("rgba")) return hex;
+    const n = parseInt(hex.slice(1), 16);
+    return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`;
   }
 
   function linha(label, dados, cor, preenche, alpha) {
@@ -331,10 +397,6 @@ const Dashboard = (() => {
     return { label, data: dados, backgroundColor: cor, borderRadius: 6, borderSkipped: false,
       maxBarThickness: 34 };
   }
-  function metaLinha(label, n, valor, cor) {
-    return { label, data: Array(n).fill(valor), borderColor: hexA(cor, 0.6),
-      borderDash: [6, 6], borderWidth: 1.5, pointRadius: 0, fill: false, tension: 0 };
-  }
 
   function criar(id, tipo, labels, datasets, escalasExtra, opcoesExtra) {
     destruir(id);
@@ -342,24 +404,18 @@ const Dashboard = (() => {
       x: { grid: { display: false }, ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 12 } },
       y: { grid, beginAtZero: true, ...(escalasExtra ? escalasExtra.y : {}) }
     };
-    graficos[id] = new Chart(ctx(id), {
-      type: tipo,
-      data: { labels, datasets },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        interaction: { mode: "index", intersect: false },
-        animation: { duration: 700 },
-        plugins: { legend: { display: datasets.length > 1, position: "bottom" } },
-        scales: escalas, ...(opcoesExtra || {})
-      }
-    });
-  }
-
-  const ctx = (id) => document.getElementById(id).getContext("2d");
-  function hexA(hex, a) {
-    if (hex.startsWith("rgba")) return hex;
-    const n = parseInt(hex.slice(1), 16);
-    return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`;
+    const opts = {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: "index", intersect: false },
+      animation: { duration: 700 },
+      plugins: { legend: { display: datasets.length > 1, position: "bottom" } },
+      scales: escalas
+    };
+    if (opcoesExtra) {
+      if (opcoesExtra.plugins) opts.plugins = { ...opts.plugins, ...opcoesExtra.plugins };
+      for (const k in opcoesExtra) if (k !== "plugins") opts[k] = opcoesExtra[k];
+    }
+    graficos[id] = new Chart(ctx(id), { type: tipo, data: { labels, datasets }, options: opts });
   }
 
   /* ===================== TABELA ===================== */

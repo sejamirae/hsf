@@ -69,6 +69,10 @@ body {
 }
 .login-logos img { height: 52px; width: auto; }
 .login-logos img.logo-mirae { border-radius: 10px; }
+.login-logos img.logo-hsf {
+  border: 1px solid var(--borda); border-radius: 8px;
+  padding: 5px 8px; background: #FFFFFF; box-shadow: 0 2px 8px -4px rgba(6,47,58,.2);
+}
 .login-logos .barra { width: 1px; height: 40px; background: var(--borda); }
 .login-card h1 { font-size: 1.18rem; font-weight: 700; color: var(--texto-pri); letter-spacing: .2px; }
 .login-card .sub { font-size: .82rem; color: var(--texto-sec); margin: 6px 0 26px; }
@@ -115,7 +119,10 @@ body {
 }
 .topo-logos { display: flex; align-items: center; gap: 16px; }
 .topo-logos img.logo-mirae { height: 44px; border-radius: 10px; box-shadow: 0 4px 14px -6px rgba(6,47,58,.25); }
-.topo-logos img.logo-hsf { height: 40px; }
+.topo-logos img.logo-hsf {
+  height: 40px; border: 1px solid var(--borda); border-radius: 8px;
+  padding: 4px 7px; background: #FFFFFF; box-shadow: 0 2px 8px -4px rgba(6,47,58,.18);
+}
 .topo-logos .barra { width: 1px; height: 36px; background: var(--borda); }
 .topo-titulo { display: flex; flex-direction: column; }
 .topo-titulo b { color: var(--texto-pri); font-size: 1.08rem; font-weight: 700; letter-spacing: .2px; }

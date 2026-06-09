@@ -86,7 +86,7 @@ A planilha continua **privada**; o Web App roda como você e expõe apenas o JSO
 
 ## 3. Como trocar a senha
 
-A senha de acesso (padrão **`131154`**) nunca é guardada em texto puro — apenas o seu **hash SHA-256**.
+A senha de acesso (padrão **`123456`**) nunca é guardada em texto puro — apenas o seu **hash SHA-256**.
 
 1. Gere o hash da nova senha em qualquer ferramenta SHA-256, por exemplo:
    `https://emn178.github.io/online-tools/sha256.html`
