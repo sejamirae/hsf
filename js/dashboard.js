@@ -25,8 +25,7 @@ const Dashboard = (() => {
   async function iniciar() {
     aplicarTemaCharts();
     ligarEventos();
-    const res = await Data.carregar();
-    pintarBadgeOrigem(res.origem);
+    await Data.carregar();
     document.getElementById("ultima-atualizacao").textContent =
       "Atualizado em " + new Date().toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" });
     removerSkeleton();
@@ -41,13 +40,6 @@ const Dashboard = (() => {
         marcarAtivo(".btn-periodo", b);
         document.getElementById("custom-range").classList.toggle("oculto", estado.periodo !== "custom");
         if (estado.periodo !== "custom") { estado.pagina = 1; renderTudo(); }
-      }));
-
-    document.querySelectorAll(".btn-visao").forEach(b =>
-      b.addEventListener("click", () => {
-        estado.visao = b.dataset.visao;
-        marcarAtivo(".btn-visao", b);
-        renderTudo();
       }));
 
     document.querySelectorAll(".btn-cat").forEach(b =>
@@ -88,19 +80,31 @@ const Dashboard = (() => {
   /* ===================== RENDER GERAL ===================== */
   function renderTudo() {
     _filtrados = Data.filtrarPeriodo(Data.registros(), estado.periodo, estado.custom);
+    estado.visao = derivarVisao(estado.periodo, _filtrados);
     atualizarLabelPeriodo();
     renderKPIs();
     renderGraficos();
     renderTabela();
   }
 
+  function derivarVisao(periodo, regs) {
+    if (periodo === "semana") return "diario";
+    if (periodo === "mes")    return "semanal";
+    // custom: por amplitude
+    if (!regs.length) return "diario";
+    if (regs.length <= 14) return "diario";
+    if (regs.length <= 90) return "semanal";
+    return "mensal";
+  }
+
   function atualizarLabelPeriodo() {
-    const map = { hoje: "Hoje", ontem: "Ontem", "7dias": "Ultimos 7 dias",
-      semana: "Semana atual", mes: "Mes atual", total: "Periodo completo", custom: "Personalizado" };
+    const map = { semana: "Semana atual", mes: "Mês atual", custom: "Período personalizado" };
     let txt = map[estado.periodo] || "";
     if (_filtrados.length) {
       const a = _filtrados[0].data, b = _filtrados[_filtrados.length - 1].data;
       txt += `  ·  ${Data.fmtDiaLongo(a)} a ${Data.fmtDiaLongo(b)}`;
+    } else {
+      txt += "  ·  sem registros neste período";
     }
     document.getElementById("periodo-label").textContent = txt;
   }
@@ -137,14 +141,14 @@ const Dashboard = (() => {
 
     const cards = [
       kpi("Atendimentos", totAt, "", subBreak(agg.atSF, agg.atExt), null),
-      kpi("Internacoes", totInt, "", subBreak(agg.intSF, agg.intExt), null),
-      kpiMeta("Conversao SF", agg.convSF, CONFIG.META_CONVERSAO_SF),
-      kpiMeta("Conversao Ext", agg.convExt, CONFIG.META_CONVERSAO_EXT),
-      kpi("Media Diaria", Math.round(mediaDia), "", "atendimentos por dia", null),
+      kpi("Internações", totInt, "", subBreak(agg.intSF, agg.intExt), null),
+      kpiMeta("Conversão SF", agg.convSF, CONFIG.META_CONVERSAO_SF),
+      kpiMeta("Conversão Ext", agg.convExt, CONFIG.META_CONVERSAO_EXT),
+      kpi("Média Diária", Math.round(mediaDia), "", "atendimentos por dia", null),
       kpi("Melhor Dia", melhor ? totalAt(melhor) : 0, "",
           melhor ? `${Data.fmtDiaLongo(melhor.data)} · pior: ${pior ? totalAt(pior) : 0}` : "—", null),
-      kpiVar("Cresc. Semanal", crescSem, "semana atual x anterior"),
-      kpiVar("Cresc. Mensal", crescMes, "mes atual x anterior")
+      kpiVar("Cresc. Semanal", crescSem, "semana atual × anterior"),
+      kpiVar("Cresc. Mensal", crescMes, "mês atual × anterior")
     ];
     document.getElementById("kpis").innerHTML = cards.join("");
     document.querySelectorAll(".kpi-num[data-alvo]").forEach(animarNumero);
@@ -153,7 +157,7 @@ const Dashboard = (() => {
   const fmtInt = (n) => Math.round(n).toLocaleString("pt-BR");
   const subBreak = (sf, ext) =>
     estado.categoria === "ambos" ? `SF ${fmtInt(sf)} · Ext ${fmtInt(ext)}`
-    : estado.categoria === "sf" ? "Sao Francisco" : "Externos";
+    : estado.categoria === "sf" ? "SF" : "Externos";
 
   function kpi(titulo, valor, sufixo, sub, _) {
     return `<article class="kpi">
@@ -223,21 +227,22 @@ const Dashboard = (() => {
   /* ===================== GRAFICOS ===================== */
   function aplicarTemaCharts() {
     if (!window.Chart) return;
-    Chart.defaults.color = "rgba(234,234,234,0.75)";
+    Chart.defaults.color = "rgba(6,47,58,0.7)";
     Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
     Chart.defaults.font.size = 12;
     Chart.defaults.plugins.legend.labels.usePointStyle = true;
     Chart.defaults.plugins.legend.labels.boxWidth = 8;
-    Chart.defaults.plugins.tooltip.backgroundColor = "rgba(6,47,58,0.96)";
-    Chart.defaults.plugins.tooltip.borderColor = "rgba(215,179,119,0.35)";
+    Chart.defaults.plugins.tooltip.backgroundColor = "rgba(255,255,255,0.98)";
+    Chart.defaults.plugins.tooltip.borderColor = "rgba(6,47,58,0.16)";
     Chart.defaults.plugins.tooltip.borderWidth = 1;
     Chart.defaults.plugins.tooltip.padding = 12;
     Chart.defaults.plugins.tooltip.cornerRadius = 10;
-    Chart.defaults.plugins.tooltip.titleColor = C.dourado;
+    Chart.defaults.plugins.tooltip.titleColor = "#062F3A";
+    Chart.defaults.plugins.tooltip.bodyColor = "#062F3A";
   }
 
-  const grid = { color: "rgba(255,255,255,0.06)" };
-  const COR_SF = C.dourado, COR_EXT = "#5FB0C9", COR_INT_SF = "#E0C58F", COR_INT_EXT = "#3D8FA8";
+  const grid = { color: "rgba(6,47,58,0.07)" };
+  const COR_SF = "#B58B4C", COR_EXT = "#2A7A8C", COR_INT_SF = "#D7B377", COR_INT_EXT = "#4C9AB0";
 
   function destruir(id) { if (graficos[id]) { graficos[id].destroy(); delete graficos[id]; } }
 
@@ -256,18 +261,18 @@ const Dashboard = (() => {
 
     /* 2. Internacoes por periodo (barras agrupadas) */
     const ds2 = [];
-    if (mostraSF())  ds2.push(barra("Internacoes SF", ag.map(g => g.intSF), COR_INT_SF));
-    if (mostraExt()) ds2.push(barra("Internacoes Externos", ag.map(g => g.intExt), COR_INT_EXT));
+    if (mostraSF())  ds2.push(barra("Internações SF", ag.map(g => g.intSF), COR_INT_SF));
+    if (mostraExt()) ds2.push(barra("Internações Externos", ag.map(g => g.intExt), COR_INT_EXT));
     criar("g-internacoes", "bar", labels, ds2);
 
     /* 3. Taxa de conversao + linhas de meta */
     const ds3 = [];
     if (mostraSF()) {
-      ds3.push(linha("Conversao SF", ag.map(g => g.convSF), COR_SF, false));
+      ds3.push(linha("Conversão SF", ag.map(g => g.convSF), COR_SF, false));
       ds3.push(metaLinha(`Meta SF ${CONFIG.META_CONVERSAO_SF}%`, labels.length, CONFIG.META_CONVERSAO_SF, COR_SF));
     }
     if (mostraExt()) {
-      ds3.push(linha("Conversao Ext", ag.map(g => g.convExt), COR_EXT, false));
+      ds3.push(linha("Conversão Ext", ag.map(g => g.convExt), COR_EXT, false));
       ds3.push(metaLinha(`Meta Ext ${CONFIG.META_CONVERSAO_EXT}%`, labels.length, CONFIG.META_CONVERSAO_EXT, COR_EXT));
     }
     criar("g-conversao", "line", labels, ds3, { y: { ticks: { callback: v => v + "%" } } });
@@ -276,12 +281,12 @@ const Dashboard = (() => {
     const sa = Data.agregar(Data.filtrarPeriodo(Data.registros(), "semana"), "diario");
     const semAnt = Data.filtrarPeriodo(Data.registros(), "custom", customSemAnterior());
     const sant = Data.agregar(semAnt, "diario");
-    const DOW = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sab"];
+    const DOW = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
     const porDow = (arr) => { const m = {}; arr.forEach(g => m[g.data.getDay()] = totalAt(g)); return m; };
     const ma = porDow(sa), mn = porDow(sant);
-    const ordem = [1, 2, 3, 4, 5, 6, 0];
+    const ordem = CONFIG.INICIO_SEMANA === 0 ? [0, 1, 2, 3, 4, 5, 6] : [1, 2, 3, 4, 5, 6, 0];
     criar("g-comparativo", "bar", ordem.map(d => DOW[d]), [
-      barra("Semana anterior", ordem.map(d => mn[d] || 0), "rgba(95,176,201,0.55)"),
+      barra("Semana anterior", ordem.map(d => mn[d] || 0), hexA(COR_EXT, 0.55)),
       barra("Semana atual", ordem.map(d => ma[d] || 0), COR_SF)
     ]);
 
@@ -291,7 +296,7 @@ const Dashboard = (() => {
     destruir("g-distribuicao");
     graficos["g-distribuicao"] = new Chart(ctx("g-distribuicao"), {
       type: "doughnut",
-      data: { labels: ["Sao Francisco", "Externos"],
+      data: { labels: ["SF", "Externos"],
         datasets: [{ data: [tSF, tEX], backgroundColor: [COR_SF, COR_EXT],
           borderColor: C.fundo, borderWidth: 3, hoverOffset: 8 }] },
       options: { cutout: "64%", plugins: { legend: { position: "bottom" } },
@@ -387,7 +392,7 @@ const Dashboard = (() => {
         <td>${fmtInt(r.intExt)}</td>
         <td class="${r.convSF >= CONFIG.META_CONVERSAO_SF ? "td-ok" : "td-alerta"}">${r.convSF.toFixed(1)}%</td>
         <td class="${r.convExt >= CONFIG.META_CONVERSAO_EXT ? "td-ok" : "td-alerta"}">${r.convExt.toFixed(1)}%</td>
-      </tr>`).join("") || `<tr><td colspan="7" class="vazio">Nenhum registro no periodo.</td></tr>`;
+      </tr>`).join("") || `<tr><td colspan="7" class="vazio">Nenhum registro no período.</td></tr>`;
 
     document.getElementById("tabela-info").textContent =
       arr.length ? `${ini + 1}–${Math.min(ini + ipp, arr.length)} de ${arr.length} registros` : "0 registros";
@@ -451,20 +456,6 @@ const Dashboard = (() => {
   }
 
   /* ===================== UI auxiliar ===================== */
-  function pintarBadgeOrigem(origem) {
-    const el = document.getElementById("badge-origem");
-    if (origem === "api") {
-      el.textContent = "Dados ao vivo · API Google Sheets";
-      el.classList.add("ao-vivo");
-    } else if (origem === "google") {
-      el.textContent = "Dados ao vivo · Google Sheets";
-      el.classList.add("ao-vivo");
-    } else {
-      el.textContent = "Modo demonstracao · configure a API em config.js";
-      el.classList.add("demo");
-    }
-  }
-
   function removerSkeleton() {
     document.querySelectorAll(".skeleton").forEach(s => s.classList.remove("skeleton"));
     document.getElementById("app").classList.add("pronto");

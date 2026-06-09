@@ -92,13 +92,20 @@ const Data = (() => {
     if (CONFIG.API_TOKEN) url += (url.includes("?") ? "&" : "?") + "token=" + encodeURIComponent(CONFIG.API_TOKEN);
     const json = CONFIG.API_JSONP ? await lerJSONP(url) : await (await fetch(url)).json();
     if (json && json.erro) throw new Error(json.erro);
+    const hojeFim = new Date(); hojeFim.setHours(23, 59, 59, 999);
     return (json.registros || []).map(r => enriquecer({
       data:   new Date(r.dia + "T00:00:00"),
       atSF:   +r.atSF || 0,
       atExt:  +r.atExt || 0,
       intSF:  +r.intSF || 0,
       intExt: +r.intExt || 0
-    })).filter(r => !isNaN(r.data) && (r.atSF + r.atExt + r.intSF + r.intExt) > 0);
+    })).filter(r => {
+      if (isNaN(r.data)) return false;
+      const totZero = (r.atSF + r.atExt + r.intSF + r.intExt) === 0;
+      // descarta apenas linhas FUTURAS totalmente zeradas (pre-preenchidas)
+      if (totZero && r.data > hojeFim) return false;
+      return true;
+    });
   }
 
   /* ---------- leitura via Google Visualization API ---------- */

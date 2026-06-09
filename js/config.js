@@ -52,19 +52,19 @@ const CONFIG = {
   },
 
   /* --- Comportamento --------------------------------------- */
-  VISAO_INICIAL: "semanal",     // diario | semanal | mensal | total
-  PERIODO_INICIAL: "total",     // hoje | ontem | 7dias | semana | mes | total
-  INICIO_SEMANA: 1,             // 1 = segunda-feira, 0 = domingo
+  VISAO_INICIAL: "diario",      // mantido para compatibilidade; o painel deriva a visao do periodo
+  PERIODO_INICIAL: "semana",    // semana | mes | custom
+  INICIO_SEMANA: 0,             // 0 = domingo, 1 = segunda-feira
   ITENS_POR_PAGINA: 10,
 
   /* --- Identidade visual ----------------------------------- */
   CORES: {
-    fundo:    "#062F3A",
-    card:     "#0B3F4D",
+    fundo:    "#FFFFFF",
+    card:     "#FFFFFF",
     dourado:  "#D7B377",
     branco:   "#FFFFFF",
-    cinza:    "#EAEAEA",
-    alerta:   "#D94C4C",
-    sucesso:  "#3FB68B"
+    cinza:    "#5A7280",
+    alerta:   "#C03540",
+    sucesso:  "#2E8C66"
   }
 };

@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BI Executivo · Hospital Sao Francisco × Mirae</title>
-  <meta name="description" content="Dashboard executivo de resultados operacionais — HSF / Mirae">
+  <title>BI Executivo · HSF × Mirae</title>
+  <meta name="description" content="Dashboard executivo de resultados operacionais — HSF × Mirae">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,10 +19,10 @@
       <div class="login-logos">
         <img src="assets/logo-mirae.png" alt="Mirae" class="logo-mirae">
         <span class="barra"></span>
-        <img src="assets/logo-hsf.png" alt="Hospital Sao Francisco" class="logo-hsf">
+        <img src="assets/logo-hsf.png" alt="Hospital São Francisco" class="logo-hsf">
       </div>
       <h1>BI Executivo de Resultados</h1>
-      <p class="sub">Hospital Sao Francisco · Acesso restrito</p>
+      <p class="sub">HSF · Acesso restrito</p>
       <div class="campo-senha">
         <input id="input-senha" type="password" inputmode="numeric"
                placeholder="••••••" aria-label="Senha de acesso">
@@ -40,14 +40,13 @@
       <div class="topo-logos">
         <img src="assets/logo-mirae.png" alt="Mirae" class="logo-mirae">
         <span class="barra"></span>
-        <img src="assets/logo-hsf.png" alt="Hospital Sao Francisco" class="logo-hsf">
+        <img src="assets/logo-hsf.png" alt="Hospital São Francisco" class="logo-hsf">
       </div>
       <div class="topo-titulo">
         <b>Painel Executivo de Resultados</b>
-        <span>Hospital e Maternidade Sao Francisco · gestao Mirae</span>
+        <span>HSF · Gestão Mirae</span>
       </div>
       <div class="topo-dir">
-        <span id="badge-origem"></span>
         <span id="ultima-atualizacao"></span>
         <button id="btn-sair">Sair</button>
       </div>
@@ -56,14 +55,10 @@
     <!-- filtros -->
     <section class="filtros">
       <div class="filtro-grupo">
-        <label>Periodo</label>
+        <label>Período</label>
         <div class="filtro-btns">
-          <button class="btn-periodo" data-periodo="hoje">Hoje</button>
-          <button class="btn-periodo" data-periodo="ontem">Ontem</button>
-          <button class="btn-periodo" data-periodo="7dias">Ultimos 7 dias</button>
-          <button class="btn-periodo" data-periodo="semana">Semana atual</button>
-          <button class="btn-periodo" data-periodo="mes">Mes atual</button>
-          <button class="btn-periodo ativo" data-periodo="total">Total geral</button>
+          <button class="btn-periodo ativo" data-periodo="semana">Semana atual</button>
+          <button class="btn-periodo" data-periodo="mes">Mês atual</button>
           <button class="btn-periodo" data-periodo="custom">Personalizado</button>
         </div>
         <div id="custom-range" class="oculto">
@@ -75,20 +70,10 @@
       </div>
 
       <div class="filtro-grupo">
-        <label>Visualizacao</label>
-        <div class="filtro-btns">
-          <button class="btn-visao" data-visao="diario">Diario</button>
-          <button class="btn-visao ativo" data-visao="semanal">Semanal</button>
-          <button class="btn-visao" data-visao="mensal">Mensal</button>
-          <button class="btn-visao" data-visao="total">Total geral</button>
-        </div>
-      </div>
-
-      <div class="filtro-grupo">
         <label>Origem</label>
         <div class="filtro-btns">
           <button class="btn-cat ativo" data-cat="ambos">Ambos</button>
-          <button class="btn-cat" data-cat="sf">Sao Francisco</button>
+          <button class="btn-cat" data-cat="sf">SF</button>
           <button class="btn-cat" data-cat="ext">Externos</button>
         </div>
       </div>
@@ -108,20 +93,20 @@
       <!-- graficos -->
       <section class="graficos">
         <div class="painel alto col-8">
-          <h3>Evolucao de Atendimentos</h3>
+          <h3>Evolução de Atendimentos</h3>
           <div class="canvas-wrap"><canvas id="g-evolucao"></canvas></div>
         </div>
         <div class="painel alto col-4">
-          <h3>Distribuicao SF × Externos</h3>
+          <h3>Distribuição SF × Externos</h3>
           <div class="canvas-wrap"><canvas id="g-distribuicao"></canvas></div>
         </div>
 
         <div class="painel col-6">
-          <h3>Internacoes por Periodo</h3>
+          <h3>Internações por Período</h3>
           <div class="canvas-wrap"><canvas id="g-internacoes"></canvas></div>
         </div>
         <div class="painel col-6">
-          <h3>Taxa de Conversao × Meta</h3>
+          <h3>Taxa de Conversão × Meta</h3>
           <div class="canvas-wrap"><canvas id="g-conversao"></canvas></div>
         </div>
 
@@ -135,7 +120,7 @@
         </div>
 
         <div class="painel col-12">
-          <h3>Tendencia Acumulada de Atendimentos</h3>
+          <h3>Tendência Acumulada de Atendimentos</h3>
           <div class="canvas-wrap"><canvas id="g-tendencia"></canvas></div>
         </div>
       </section>
@@ -143,7 +128,7 @@
       <!-- tabela -->
       <section class="tabela-card">
         <div class="tabela-topo">
-          <h3>Tabela Analitica Diaria</h3>
+          <h3>Tabela Analítica Diária</h3>
           <input id="busca" type="search" placeholder="Buscar por data...">
           <div class="export-btns">
             <button id="btn-csv">Exportar CSV</button>
@@ -172,7 +157,7 @@
         </div>
       </section>
 
-      <p class="rodape-creditos">Desenvolvido por <b>Mirae</b> · Painel confidencial Hospital Sao Francisco</p>
+      <p class="rodape-creditos">Desenvolvido por <b>Mirae</b> · Painel confidencial · HSF</p>
     </main>
   </div>
 
