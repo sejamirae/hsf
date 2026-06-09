@@ -69,6 +69,7 @@
           <span>—</span>
           <input id="data-fim" type="date" aria-label="Data final">
           <button id="btn-aplicar-custom">Aplicar</button>
+          <button id="btn-limpar-custom">Limpar</button>
         </div>
       </div>
 
@@ -118,7 +119,10 @@
       <section class="tabela-card">
         <div class="tabela-topo">
           <h3>Tabela Analítica Diária</h3>
-          <input id="busca" type="search" placeholder="Buscar por data...">
+          <label class="busca-data">Ir para data
+            <input id="busca" type="date" aria-label="Filtrar por data">
+          </label>
+          <button id="btn-limpar-busca" title="Limpar data">Limpar</button>
           <div class="export-btns">
             <button id="btn-csv">Exportar CSV</button>
             <button id="btn-xlsx">Exportar Excel</button>

@@ -21,6 +21,7 @@ const Dashboard = (() => {
   };
   const graficos = {};
   let _filtrados = [];   // registros diarios apos filtro de periodo
+  let _drill = false;    // indica drill-down via clique em grafico
 
   /* ===================== INICIO ===================== */
   async function iniciar() {
@@ -41,6 +42,7 @@ const Dashboard = (() => {
   function ligarEventos() {
     document.querySelectorAll(".btn-periodo").forEach(b =>
       b.addEventListener("click", () => {
+        _drill = false;
         estado.periodo = b.dataset.periodo;
         marcarAtivo(".btn-periodo", b);
         document.getElementById("custom-range").classList.toggle("oculto", estado.periodo !== "custom");
@@ -58,20 +60,25 @@ const Dashboard = (() => {
     document.getElementById("cfg-salvar").addEventListener("click", salvarConfigModal);
 
     document.querySelectorAll(".btn-cat").forEach(b =>
-      b.addEventListener("click", () => {
-        estado.categoria = b.dataset.cat;
-        marcarAtivo(".btn-cat", b);
-        renderTudo();
-      }));
+      b.addEventListener("click", () => aplicarCategoria(b.dataset.cat)));
 
     document.getElementById("btn-aplicar-custom").addEventListener("click", () => {
       const i = document.getElementById("data-ini").value;
       const f = document.getElementById("data-fim").value;
       if (i && f) { estado.custom = { ini: i, fim: f }; estado.pagina = 1; renderTudo(); }
     });
+    document.getElementById("btn-limpar-custom").addEventListener("click", () => {
+      document.getElementById("data-ini").value = "";
+      document.getElementById("data-fim").value = "";
+      estado.custom = { ini: null, fim: null };
+      voltarParaPeriodo("semana");
+    });
 
-    document.getElementById("busca").addEventListener("input", (e) => {
-      estado.busca = e.target.value.toLowerCase(); estado.pagina = 1; renderTabela();
+    document.getElementById("busca").addEventListener("change", (e) => {
+      estado.busca = e.target.value; estado.pagina = 1; renderTabela();
+    });
+    document.getElementById("btn-limpar-busca").addEventListener("click", () => {
+      document.getElementById("busca").value = ""; estado.busca = ""; estado.pagina = 1; renderTabela();
     });
 
     document.querySelectorAll("th[data-col]").forEach(th =>
@@ -91,6 +98,38 @@ const Dashboard = (() => {
     document.querySelectorAll(seletor).forEach(b => b.classList.remove("ativo"));
     btn.classList.add("ativo");
   }
+
+  /* ---------- interatividade entre graficos ---------- */
+  function aplicarCategoria(cat) {
+    estado.categoria = cat;
+    document.querySelectorAll(".btn-cat").forEach(b => b.classList.toggle("ativo", b.dataset.cat === cat));
+    renderTudo();
+  }
+  function voltarParaPeriodo(p) {
+    _drill = false;
+    estado.periodo = p;
+    document.querySelectorAll(".btn-periodo").forEach(b => b.classList.toggle("ativo", b.dataset.periodo === p));
+    document.getElementById("custom-range").classList.toggle("oculto", p !== "custom");
+    estado.pagina = 1; renderTudo();
+  }
+  function drillTempo(els, ag) {
+    if (!els.length) return;
+    const g = ag[els[0].index]; if (!g) return;
+    let ini, fim;
+    if (estado.visao === "diario") { ini = new Date(g.data); fim = new Date(g.data); }
+    else if (estado.visao === "mensal") {
+      ini = new Date(g.data.getFullYear(), g.data.getMonth(), 1);
+      fim = new Date(g.data.getFullYear(), g.data.getMonth() + 1, 0);
+    } else {
+      ini = Data.inicioSemana(g.data); fim = new Date(ini); fim.setDate(fim.getDate() + 6);
+    }
+    estado.custom = { ini: localISO(ini), fim: localISO(fim) };
+    estado.periodo = "custom"; _drill = true;
+    document.querySelectorAll(".btn-periodo").forEach(b => b.classList.remove("ativo"));
+    document.getElementById("custom-range").classList.add("oculto");
+    estado.pagina = 1; renderTudo();
+  }
+  const aoPassar = (e, els) => { if (e.native) e.native.target.style.cursor = els.length ? "pointer" : "default"; };
 
   /* ===================== RENDER GERAL ===================== */
   function renderTudo() {
@@ -114,10 +153,11 @@ const Dashboard = (() => {
 
   function atualizarLabelPeriodo() {
     const map = { semana: "Semana atual", mes: "Mês atual", custom: "Período personalizado" };
-    let txt = map[estado.periodo] || "";
+    let txt = (_drill ? "Detalhe" : (map[estado.periodo] || ""));
     if (_filtrados.length) {
       const a = _filtrados[0].data, b = _filtrados[_filtrados.length - 1].data;
       txt += `  ·  ${Data.fmtDiaLongo(a)} a ${Data.fmtDiaLongo(b)}`;
+      if (_drill) txt += "  ·  clique em Semana/Mês atual para voltar";
     } else {
       txt += "  ·  sem registros neste período";
     }
@@ -319,13 +359,15 @@ const Dashboard = (() => {
     const ds1 = [];
     if (mostraSF())  ds1.push(linha("Atendimentos SF", ag.map(g => g.atSF), COR_SF, true));
     if (mostraExt()) ds1.push(linha("Atendimentos Externos", ag.map(g => g.atExt), COR_EXT, true));
-    criar("g-evolucao", "line", labels, ds1);
+    criar("g-evolucao", "line", labels, ds1, null,
+      { onClick: (e, els) => drillTempo(els, ag), onHover: aoPassar });
 
     /* 2. Internacoes por periodo (barras agrupadas) */
     const ds2 = [];
     if (mostraSF())  ds2.push(barra("Internações SF", ag.map(g => g.intSF), COR_INT_SF));
     if (mostraExt()) ds2.push(barra("Internações Externos", ag.map(g => g.intExt), COR_INT_EXT));
-    criar("g-internacoes", "bar", labels, ds2);
+    criar("g-internacoes", "bar", labels, ds2, null,
+      { onClick: (e, els) => drillTempo(els, ag), onHover: aoPassar });
 
     /* 3. Taxa de conversao + faixas de cor */
     const ds3 = [];
@@ -363,6 +405,12 @@ const Dashboard = (() => {
           borderColor: C.fundo, borderWidth: 3, hoverOffset: 8 }] },
       options: {
         cutout: "62%", responsive: true, maintainAspectRatio: false,
+        onClick: (e, els) => {
+          if (!els.length) return;
+          if (estado.categoria === "ambos") aplicarCategoria(els[0].index === 0 ? "sf" : "ext");
+          else aplicarCategoria("ambos");
+        },
+        onHover: aoPassar,
         plugins: {
           legend: { position: "bottom" },
           tooltip: { callbacks: { label: (it) =>
@@ -479,9 +527,12 @@ const Dashboard = (() => {
   }
 
   /* ===================== TABELA ===================== */
+  const localISO = (d) =>
+    `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+
   function dadosTabela() {
     let arr = _filtrados.slice();
-    if (estado.busca) arr = arr.filter(r => Data.fmtDiaLongo(r.data).includes(estado.busca));
+    if (estado.busca) arr = arr.filter(r => localISO(r.data) === estado.busca);
     const { col, asc } = estado.ordem;
     arr.sort((a, b) => {
       const va = col === "data" ? a.data.getTime() : a[col];
