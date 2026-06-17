@@ -128,22 +128,18 @@ body {
 
 /* topo da sidebar */
 .sb-topo {
-  display: flex; align-items: center; gap: 10px;
-  padding: 16px 14px;
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 0 16px;
   border-bottom: var(--r-px) solid rgba(255,255,255,.08);
-  min-height: 78px;
+  min-height: 65px;
 }
-.sb-logos {
-  display: flex; align-items: center; justify-content: center; gap: 12px;
-  flex: 1; min-width: 0;
-  background: #FFFFFF; border-radius: 12px;
-  padding: 10px 14px;
-  box-shadow: 0 4px 14px -6px rgba(0,0,0,.4);
-  overflow: hidden; transition: opacity .2s, padding .25s;
+.sb-brand {
+  font-size: .82rem; font-weight: 700; letter-spacing: .4px;
+  color: var(--dourado-pal);
+  white-space: nowrap; overflow: hidden;
+  transition: opacity .2s, width .25s;
 }
-.sb-logos img.logo-mirae { height: 26px; width: auto; flex-shrink: 0; }
-.sb-logos img.logo-hsf   { height: 32px; width: auto; flex-shrink: 0; }
-#sidebar.colapsado .sb-logos { opacity: 0; width: 0; flex: 0; padding: 0; }
+#sidebar.colapsado .sb-brand { opacity: 0; width: 0; }
 
 #sb-toggle {
   width: 34px; height: 34px; flex-shrink: 0; cursor: pointer;
@@ -153,8 +149,9 @@ body {
   transition: background .2s, color .2s;
 }
 #sb-toggle:hover { background: rgba(255,255,255,.16); color: #fff; }
-#sb-toggle svg { width: 17px; height: 17px; }
+#sb-toggle svg { width: 18px; height: 18px; transition: transform .25s ease; }
 #sidebar.colapsado #sb-toggle { margin: 0 auto; }
+#sidebar.colapsado #sb-toggle svg { transform: rotate(180deg); }
 
 /* label de seção */
 .sb-secao-label {
@@ -228,12 +225,30 @@ body {
   background: rgba(255,255,255,.7); backdrop-filter: blur(8px);
   position: sticky; top: 0; z-index: 10;
 }
-.topbar-esq { display: flex; flex-direction: column; }
+.topbar-esq { display: flex; flex-direction: column; min-width: 0; }
 .topbar-titulo {
   font-size: 1.05rem; font-weight: 700; color: var(--texto-pri); letter-spacing: .1px;
 }
 .topbar-sub { font-size: .74rem; color: var(--texto-sec); margin-top: 1px; }
+
+.topbar-dir {
+  display: flex; align-items: center; gap: 16px; flex-shrink: 0;
+}
+.topbar-logos { display: flex; align-items: center; gap: 12px; }
+.topbar-logos img.logo-mirae {
+  height: 34px; width: auto; border-radius: 8px;
+  box-shadow: 0 3px 10px -5px rgba(6,47,58,.3);
+}
+.topbar-logos img.logo-hsf {
+  height: 40px; width: auto; border-radius: 8px;
+  border: 1px solid rgba(6,47,58,.12); padding: 3px 8px; background: #FFFFFF;
+}
+.topbar-logos .barra { width: 1px; height: 30px; background: var(--borda); }
 #ultima-atualizacao { font-size: .74rem; color: var(--texto-sec); white-space: nowrap; }
+
+@media (max-width: 720px) {
+  .topbar-logos { display: none; }
+}
 
 /* ===================== FILTROS ===================== */
 .filtros {

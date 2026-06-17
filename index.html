@@ -40,15 +40,13 @@
     <!-- ========== SIDEBAR ========== -->
     <aside id="sidebar">
 
-      <!-- topo da sidebar: logos + toggle -->
+      <!-- topo da sidebar: marca + toggle -->
       <div class="sb-topo">
-        <div class="sb-logos">
-          <img src="assets/logo-mirae.png" alt="Mirae" class="logo-mirae">
-          <img src="assets/logo-hsf.png"   alt="Hospital São Francisco" class="logo-hsf">
-        </div>
+        <span class="sb-brand">BI Executivo</span>
         <button id="sb-toggle" title="Recolher menu" aria-label="Alternar menu">
-          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
-            <path d="M3 5h14M3 10h14M3 15h14"/>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="13 17 8 12 13 7"/>
+            <polyline points="18 17 13 12 18 7"/>
           </svg>
         </button>
       </div>
@@ -83,14 +81,14 @@
       <div class="sb-rodape">
         <p class="sb-secao-label">Sistema</p>
 
-        <button class="sb-item" id="btn-config" title="Configurações de metas e faixas" aria-label="Configurações">
+        <button class="sb-item" id="btn-config" title="Configurar metas e faixas de conversão (aba KPI)" aria-label="Metas de conversão">
           <span class="sb-icon">
-            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="10" cy="10" r="2.8"/>
-              <path d="M10 2v2.2M10 15.8V18M2 10h2.2M15.8 10H18M4.6 4.6l1.6 1.6M13.8 13.8l1.6 1.6M15.4 4.6l-1.6 1.6M6.2 13.8l-1.6 1.6"/>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
             </svg>
           </span>
-          <span class="sb-label">Configurações</span>
+          <span class="sb-label">Metas de Conversão</span>
         </button>
 
         <button class="sb-item sb-sair" id="btn-sair">
@@ -114,7 +112,14 @@
           <span class="topbar-titulo" id="topbar-titulo">KPI Conversão de Internações</span>
           <span class="topbar-sub">HSF · Gestão Mirae</span>
         </div>
-        <span id="ultima-atualizacao"></span>
+        <div class="topbar-dir">
+          <div class="topbar-logos">
+            <img src="assets/logo-mirae.png" alt="Mirae" class="logo-mirae">
+            <span class="barra"></span>
+            <img src="assets/logo-hsf.png" alt="Hospital São Francisco" class="logo-hsf">
+          </div>
+          <span id="ultima-atualizacao"></span>
+        </div>
       </header>
 
       <!-- ===================== ABA PAINEL ===================== -->

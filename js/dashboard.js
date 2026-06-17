@@ -725,8 +725,11 @@ const TITULOS_ABA = {
 
 function iniciarSidebar() {
   // toggle recolher/expandir
-  document.getElementById("sb-toggle").addEventListener("click", () => {
-    document.getElementById("sidebar").classList.toggle("colapsado");
+  const sidebar = document.getElementById("sidebar");
+  const toggle  = document.getElementById("sb-toggle");
+  toggle.addEventListener("click", () => {
+    const colapsado = sidebar.classList.toggle("colapsado");
+    toggle.title = colapsado ? "Expandir menu" : "Recolher menu";
   });
 
   // navegação entre abas
@@ -744,6 +747,9 @@ function iniciarSidebar() {
 
       // atualiza título no topbar
       document.getElementById("topbar-titulo").textContent = TITULOS_ABA[aba] || "";
+
+      // "Metas de Conversão" só faz sentido na aba KPI
+      document.getElementById("btn-config").classList.toggle("oculto", aba !== "painel");
 
       // inicia NPS na primeira vez
       if (aba === "nps") NPS.iniciar();
