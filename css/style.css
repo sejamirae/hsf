@@ -289,16 +289,17 @@ body {
   border-color: transparent; font-weight: 700;
   box-shadow: 0 8px 18px -10px rgba(6,47,58,.5);
 }
-#custom-range { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
-#custom-range input {
+#custom-range, #nps-custom-range { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 8px; }
+#custom-range input, #nps-custom-range input {
   background: #FFFFFF; border: var(--r-px) solid var(--borda);
   color: var(--texto-pri); padding: 8px 10px; border-radius: 9px; font-size: .82rem;
+  color-scheme: light;
 }
-#btn-aplicar-custom {
+#btn-aplicar-custom, #nps-btn-aplicar {
   background: var(--dourado-suave); border: var(--r-px) solid var(--borda-d);
   color: var(--dourado); padding: 8px 14px; border-radius: 9px; cursor: pointer; font-weight: 700; font-size:.82rem;
 }
-#btn-aplicar-custom:hover { background: rgba(215,179,119,.3); }
+#btn-aplicar-custom:hover, #nps-btn-aplicar:hover { background: rgba(215,179,119,.3); }
 
 #periodo-label, #nps-periodo-label {
   padding: 10px clamp(16px, 4vw, 40px) 0; font-size: .82rem; color: var(--texto-sec);
@@ -402,11 +403,11 @@ main { padding: 18px clamp(16px, 4vw, 40px) 48px; display: flex; flex-direction:
   transition: .18s; color-scheme: light;
 }
 #busca:focus { border-color: var(--dourado); background: #FFFFFF; box-shadow: 0 0 0 3px var(--dourado-suave); }
-#btn-limpar-busca, #btn-limpar-custom {
+#btn-limpar-busca, #btn-limpar-custom, #nps-btn-limpar {
   font-size: .8rem; cursor: pointer; color: var(--texto-sec);
   background: #FFFFFF; border: var(--r-px) solid var(--borda); padding: 8px 14px; border-radius: 9px; transition: .18s;
 }
-#btn-limpar-busca:hover, #btn-limpar-custom:hover { border-color: var(--texto-sec); color: var(--texto-pri); }
+#btn-limpar-busca:hover, #btn-limpar-custom:hover, #nps-btn-limpar:hover { border-color: var(--texto-sec); color: var(--texto-pri); }
 .export-btns button {
   font-size: .82rem; font-weight: 700; cursor: pointer; color: var(--dourado);
   background: var(--dourado-suave); border: var(--r-px) solid var(--borda-d);
