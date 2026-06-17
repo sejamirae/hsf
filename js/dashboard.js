@@ -54,31 +54,31 @@ const Dashboard = (() => {
         }
       }));
 
-    document.getElementById("btn-config").addEventListener("click", abrirConfig);
-    document.getElementById("cfg-fechar").addEventListener("click", fecharConfig);
-    document.getElementById("cfg-cancelar").addEventListener("click", fecharConfig);
-    document.getElementById("cfg-salvar").addEventListener("click", salvarConfigModal);
-    document.getElementById("btn-voltar").addEventListener("click", () => voltarParaPeriodo(CONFIG.PERIODO_INICIAL));
+    on("btn-config", "click", abrirConfig);
+    on("cfg-fechar", "click", fecharConfig);
+    on("cfg-cancelar", "click", fecharConfig);
+    on("cfg-salvar", "click", salvarConfigModal);
+    on("btn-voltar", "click", () => voltarParaPeriodo(CONFIG.PERIODO_INICIAL));
 
     document.querySelectorAll(".btn-cat").forEach(b =>
       b.addEventListener("click", () => aplicarCategoria(b.dataset.cat)));
 
-    document.getElementById("btn-aplicar-custom").addEventListener("click", () => {
+    on("btn-aplicar-custom", "click", () => {
       const i = document.getElementById("data-ini").value;
       const f = document.getElementById("data-fim").value;
       if (i && f) { estado.custom = { ini: i, fim: f }; estado.pagina = 1; renderTudo(); }
     });
-    document.getElementById("btn-limpar-custom").addEventListener("click", () => {
+    on("btn-limpar-custom", "click", () => {
       document.getElementById("data-ini").value = "";
       document.getElementById("data-fim").value = "";
       estado.custom = { ini: null, fim: null };
       voltarParaPeriodo("semana");
     });
 
-    document.getElementById("busca").addEventListener("change", (e) => {
+    on("busca", "change", (e) => {
       estado.busca = e.target.value; estado.pagina = 1; renderTabela();
     });
-    document.getElementById("btn-limpar-busca").addEventListener("click", () => {
+    on("btn-limpar-busca", "click", () => {
       document.getElementById("busca").value = ""; estado.busca = ""; estado.pagina = 1; renderTabela();
     });
 
@@ -90,8 +90,16 @@ const Dashboard = (() => {
         renderTabela();
       }));
 
-    document.getElementById("btn-xlsx").addEventListener("click", exportarXLSX);
-    document.getElementById("btn-sair").addEventListener("click", Auth.encerrarSessao);
+    on("btn-xlsx", "click", exportarXLSX);
+    on("btn-sair", "click", Auth.encerrarSessao);
+  }
+
+  /* liga um evento a um elemento por id, ignorando em silencio se ele
+     nao existir — evita que um unico elemento ausente derrube o app */
+  function on(id, evento, fn) {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener(evento, fn);
+    else console.warn(`Elemento #${id} nao encontrado — evento ignorado`);
   }
 
   function marcarAtivo(seletor, btn) {
