@@ -55,6 +55,15 @@
       </div>
     </header>
 
+    <!-- navegacao de abas -->
+    <nav class="abas">
+      <button class="btn-aba ativo" data-aba="painel">Painel Operacional</button>
+      <button class="btn-aba" data-aba="nps">NPS · Satisfação</button>
+    </nav>
+
+    <!-- ===================== ABA PAINEL ===================== -->
+    <div id="aba-painel">
+
     <!-- filtros -->
     <section class="filtros">
       <div class="filtro-grupo">
@@ -154,6 +163,95 @@
       <p class="rodape-creditos">Desenvolvido por <b>Mirae</b> · Painel confidencial · HSF</p>
     </main>
 
+    </div><!-- /aba-painel -->
+
+    <!-- ===================== ABA NPS ===================== -->
+    <div id="aba-nps" class="oculto">
+
+      <!-- filtros NPS -->
+      <section class="filtros">
+        <div class="filtro-grupo">
+          <label>Período</label>
+          <div class="filtro-btns">
+            <button class="btn-nps-periodo ativo" data-periodo="mes">Mês atual</button>
+            <button class="btn-nps-periodo" data-periodo="semana">Semana atual</button>
+            <button class="btn-nps-periodo" data-periodo="custom">Personalizado</button>
+          </div>
+          <div id="nps-custom-range" class="oculto">
+            <input id="nps-data-ini" type="date" aria-label="Data inicial">
+            <span>—</span>
+            <input id="nps-data-fim" type="date" aria-label="Data final">
+            <button id="nps-btn-aplicar">Aplicar</button>
+            <button id="nps-btn-limpar">Limpar</button>
+          </div>
+        </div>
+      </section>
+      <p id="nps-periodo-label"></p>
+
+      <main>
+        <!-- KPIs NPS -->
+        <section id="nps-kpis" class="kpis">
+          <article class="kpi skeleton" style="height:118px"></article>
+          <article class="kpi skeleton" style="height:118px"></article>
+          <article class="kpi skeleton" style="height:118px"></article>
+          <article class="kpi skeleton" style="height:118px"></article>
+          <article class="kpi skeleton" style="height:118px"></article>
+          <article class="kpi skeleton" style="height:118px"></article>
+          <article class="kpi skeleton" style="height:118px"></article>
+          <article class="kpi skeleton" style="height:118px"></article>
+        </section>
+
+        <!-- gráficos NPS -->
+        <section class="graficos">
+          <div class="painel alto col-8">
+            <h3>Evolução do NPS</h3>
+            <div class="canvas-wrap"><canvas id="g-nps-evolucao"></canvas></div>
+          </div>
+          <div class="painel alto col-4">
+            <h3>Distribuição</h3>
+            <div class="canvas-wrap"><canvas id="g-nps-dist"></canvas></div>
+          </div>
+          <div class="painel col-12" style="padding-bottom:22px">
+            <h3>Médias por Dimensão</h3>
+            <div class="canvas-wrap" style="height:180px"><canvas id="g-nps-dims"></canvas></div>
+          </div>
+        </section>
+
+        <!-- tabela de respostas -->
+        <section class="tabela-card">
+          <div class="tabela-topo">
+            <h3>Respostas e Comentários</h3>
+            <label class="nps-toggle-coment">
+              <input type="checkbox" id="nps-filtro-coment">
+              Só com comentário
+            </label>
+          </div>
+          <div class="tabela-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th style="text-align:left">Data</th>
+                  <th>NPS</th>
+                  <th>Médico</th>
+                  <th>Enfermagem</th>
+                  <th>Infra</th>
+                  <th style="text-align:left">Comentário</th>
+                </tr>
+              </thead>
+              <tbody id="nps-tabela-corpo"></tbody>
+            </table>
+          </div>
+          <div class="tabela-rodape">
+            <span id="nps-tabela-info"></span>
+            <div id="nps-paginacao"></div>
+          </div>
+        </section>
+
+        <p class="rodape-creditos">Desenvolvido por <b>Mirae</b> · Painel confidencial · HSF</p>
+      </main>
+
+    </div><!-- /aba-nps -->
+
     <!-- modal de configuracoes -->
     <div id="tela-config" class="oculto">
       <div class="cfg-card">
@@ -183,5 +281,6 @@
   <script src="js/auth.js"></script>
   <script src="js/data.js"></script>
   <script src="js/dashboard.js"></script>
+  <script src="js/nps.js"></script>
 </body>
 </html>

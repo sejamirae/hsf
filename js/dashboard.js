@@ -714,4 +714,15 @@ const Dashboard = (() => {
 window.addEventListener("DOMContentLoaded", async () => {
   await Auth.iniciar();      // bloqueia ate o login
   Dashboard.iniciar();
+
+  // troca de abas
+  document.querySelectorAll(".btn-aba").forEach(btn =>
+    btn.addEventListener("click", () => {
+      const aba = btn.dataset.aba;
+      document.querySelectorAll(".btn-aba").forEach(b => b.classList.remove("ativo"));
+      btn.classList.add("ativo");
+      document.getElementById("aba-painel").classList.toggle("oculto", aba !== "painel");
+      document.getElementById("aba-nps").classList.toggle("oculto", aba !== "nps");
+      if (aba === "nps") NPS.iniciar();
+    }));
 });

@@ -346,6 +346,40 @@ td.vazio { text-align: center; color: var(--texto-sec); padding: 28px; }
 .rodape-creditos { text-align: center; font-size: .74rem; color: var(--texto-sec); padding: 8px 0 4px; }
 .rodape-creditos b { color: var(--dourado); font-weight: 700; }
 
+/* ===================== ABAS DE NAVEGAÇÃO ===================== */
+.abas {
+  display: flex; gap: 4px;
+  padding: 14px clamp(16px, 4vw, 40px) 0;
+  border-bottom: var(--r-px) solid var(--borda);
+}
+.btn-aba {
+  font-size: .86rem; font-weight: 600; cursor: pointer;
+  color: var(--texto-sec); background: transparent;
+  border: none; border-bottom: 2.5px solid transparent;
+  padding: 9px 18px 11px; transition: color .18s, border-color .18s;
+  margin-bottom: -1px;
+}
+.btn-aba:hover { color: var(--texto-pri); }
+.btn-aba.ativo {
+  color: var(--dourado);
+  border-bottom-color: var(--dourado);
+}
+
+/* ===================== NPS ===================== */
+.nps-estrelas { color: var(--dourado); font-size: .95rem; letter-spacing: 1px; }
+
+.nps-nota-cell { text-align: center; font-weight: 700; font-size: 1rem; }
+.nps-dim-cell  { text-align: center; color: var(--texto-sec); }
+.nps-comment-cell { text-align: left; font-size: .82rem; color: var(--texto-pri); max-width: 340px; }
+.nps-sem-comment  { opacity: .35; }
+
+.nps-toggle-coment {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: .8rem; color: var(--texto-sec); font-weight: 600;
+  cursor: pointer; margin-left: auto;
+}
+.nps-toggle-coment input { accent-color: var(--dourado); width: 15px; height: 15px; cursor: pointer; }
+
 /* ===================== MODAL DE CONFIGURACOES ===================== */
 #tela-config {
   position: fixed; inset: 0; z-index: 60;
