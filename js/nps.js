@@ -12,6 +12,8 @@ const NPS = (() => {
   let _soComent  = false;
   let _pagina    = 1;
   let _iniciado  = false;
+  let _pIni      = null;   // inicio do periodo (para o rotulo)
+  let _pFim      = null;   // fim do periodo, limitado a hoje
   const _graficos = {};
   const IPP = 10;
 
@@ -122,8 +124,12 @@ const NPS = (() => {
         }
         break;
     }
-    if (!ini) { _filtrados = _todos.slice(); return; }
+    if (!ini) { _filtrados = _todos.slice(); _pIni = null; _pFim = null; return; }
     fim.setHours(23, 59, 59, 999);
+    // limites do periodo para o rotulo (fim limitado a hoje, como no KPI)
+    const hojeFim = new Date(hoje); hojeFim.setHours(23, 59, 59, 999);
+    _pIni = new Date(ini);
+    _pFim = fim > hojeFim ? hojeFim : new Date(fim);
     _filtrados = _todos.filter(r => r.data >= ini && r.data <= fim);
   }
 
@@ -186,12 +192,15 @@ const NPS = (() => {
   function atualizarLabel() {
     const map = { semana: 'Semana atual', mes: 'Mês atual', custom: 'Período personalizado' };
     let txt = map[_periodo] || '';
-    if (_filtrados.length) {
-      const a = _filtrados[0].data, b = _filtrados[_filtrados.length - 1].data;
+    // mostra o intervalo do PERIODO (como no painel KPI), nao o dos dados
+    const a = _pIni || (_filtrados.length ? _filtrados[0].data : null);
+    const b = _pFim || (_filtrados.length ? _filtrados[_filtrados.length - 1].data : null);
+    if (a && b) {
       txt += `  ·  ${fmtData(a)} a ${fmtData(b)}`;
     } else {
       txt += '  ·  sem respostas neste período';
     }
+    if (!_filtrados.length) txt += '  ·  sem respostas';
     document.getElementById('nps-periodo-label').textContent = txt;
   }
 
