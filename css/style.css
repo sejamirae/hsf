@@ -490,6 +490,30 @@ td.vazio { text-align: center; color: var(--texto-sec); padding: 28px; }
 #aba-nps thead th { text-align: center; }
 #aba-nps thead th:first-child, #aba-nps thead th:last-child { text-align: left; }
 
+/* cards de segmento clicaveis (Promotores/Passivos/Detratores) */
+.kpi-seg { cursor: pointer; }
+.kpi-seg::after {
+  content: "filtrar"; position: absolute; top: 12px; right: 14px;
+  font-size: .6rem; font-weight: 700; text-transform: uppercase; letter-spacing: .8px;
+  color: var(--seg); opacity: 0; transition: opacity .18s;
+}
+.kpi-seg:hover::after { opacity: .65; }
+.kpi-seg.seg-ativo {
+  border-color: var(--seg);
+  box-shadow: 0 0 0 1px var(--seg), var(--sombra);
+}
+.kpi-seg.seg-ativo::after { content: "ativo ✕"; opacity: 1; }
+.kpi-seg.seg-ativo::before { opacity: 1; background: linear-gradient(90deg, transparent, var(--seg), transparent); }
+
+#nps-seg-aviso { font-size: .78rem; color: var(--texto-sec); }
+#nps-seg-aviso b { color: var(--texto-pri); }
+#nps-seg-limpar {
+  font-size: .76rem; font-weight: 600; cursor: pointer; color: var(--dourado);
+  background: var(--dourado-suave); border: var(--r-px) solid var(--borda-d);
+  padding: 3px 10px; border-radius: 8px; margin-left: 4px;
+}
+#nps-seg-limpar:hover { background: rgba(215,179,119,.3); }
+
 /* ===================== MODAL DE CONFIGURACOES ===================== */
 #tela-config {
   position: fixed; inset: 0; z-index: 60;

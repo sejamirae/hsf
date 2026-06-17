@@ -14,6 +14,7 @@ const NPS = (() => {
   let _iniciado  = false;
   let _pIni      = null;   // inicio do periodo (para o rotulo)
   let _pFim      = null;   // fim do periodo, limitado a hoje
+  let _seg       = null;   // filtro por segmento: 'prom' | 'pass' | 'det' | null
   const _graficos = {};
   const IPP = 10;
 
@@ -223,17 +224,17 @@ const NPS = (() => {
         <span class="kpi-num">${m.total}</span>
         <span class="kpi-sub">no período selecionado</span>
       </article>
-      <article class="kpi">
+      <article class="kpi kpi-seg ${_seg === 'prom' ? 'seg-ativo' : ''}" data-seg="prom" style="--seg:${COR_PROM}" title="Filtrar promotores na tabela">
         <span class="kpi-titulo">Promotores</span>
         <span class="kpi-num" style="color:${COR_PROM}">${m.pProm}%</span>
         <span class="kpi-sub">${m.promotores} resp. · nota 9–10</span>
       </article>
-      <article class="kpi">
+      <article class="kpi kpi-seg ${_seg === 'pass' ? 'seg-ativo' : ''}" data-seg="pass" style="--seg:${COR_PASS}" title="Filtrar passivos na tabela">
         <span class="kpi-titulo">Passivos</span>
         <span class="kpi-num" style="color:${COR_PASS}">${m.pPass}%</span>
         <span class="kpi-sub">${m.passivos} resp. · nota 7–8</span>
       </article>
-      <article class="kpi">
+      <article class="kpi kpi-seg ${_seg === 'det' ? 'seg-ativo' : ''}" data-seg="det" style="--seg:${COR_DET}" title="Filtrar detratores na tabela">
         <span class="kpi-titulo">Detratores</span>
         <span class="kpi-num" style="color:${COR_DET}">${m.pDet}%</span>
         <span class="kpi-sub">${m.detratores} resp. · nota 0–6</span>
@@ -442,10 +443,24 @@ const NPS = (() => {
   }
 
   /* ---- tabela de respostas ---- */
+  function segDe(nps) { return nps >= 9 ? 'prom' : nps >= 7 ? 'pass' : 'det'; }
+
   function renderTabela() {
     let arr = _filtrados.slice();
     if (_soComent) arr = arr.filter(r => r.comentario);
+    if (_seg)      arr = arr.filter(r => segDe(r.nps) === _seg);
     arr.sort((a, b) => b.data - a.data);
+
+    // aviso de filtro de segmento ativo
+    const aviso = document.getElementById('nps-seg-aviso');
+    if (aviso) {
+      const nomes = { prom: 'promotores', pass: 'passivos', det: 'detratores' };
+      aviso.innerHTML = _seg
+        ? `Filtrando <b>${nomes[_seg]}</b> · <button id="nps-seg-limpar">limpar</button>`
+        : '';
+      const limpar = document.getElementById('nps-seg-limpar');
+      if (limpar) limpar.addEventListener('click', () => { _seg = null; _pagina = 1; renderKPIs(); renderTabela(); });
+    }
 
     const total    = arr.length;
     const totalPag = Math.max(1, Math.ceil(total / IPP));
@@ -525,6 +540,17 @@ const NPS = (() => {
 
     document.getElementById('nps-filtro-coment').addEventListener('change', e => {
       _soComent = e.target.checked; _pagina = 1; renderTabela();
+    });
+
+    // clique nos cards de segmento filtra a tabela (clicar de novo limpa)
+    document.getElementById('nps-kpis').addEventListener('click', e => {
+      const card = e.target.closest('.kpi-seg');
+      if (!card) return;
+      const seg = card.dataset.seg;
+      _seg = (_seg === seg) ? null : seg;
+      _pagina = 1;
+      renderKPIs();
+      renderTabela();
     });
   }
 
