@@ -714,15 +714,38 @@ const Dashboard = (() => {
 window.addEventListener("DOMContentLoaded", async () => {
   await Auth.iniciar();      // bloqueia ate o login
   Dashboard.iniciar();
+  iniciarSidebar();
+});
 
-  // troca de abas
-  document.querySelectorAll(".btn-aba").forEach(btn =>
+/* ===================== SIDEBAR + NAVEGAÇÃO ===================== */
+const TITULOS_ABA = {
+  painel: "KPI Conversão de Internações",
+  nps:    "CX NPS · Hospital São Francisco Cotia"
+};
+
+function iniciarSidebar() {
+  // toggle recolher/expandir
+  document.getElementById("sb-toggle").addEventListener("click", () => {
+    document.getElementById("sidebar").classList.toggle("colapsado");
+  });
+
+  // navegação entre abas
+  document.querySelectorAll(".sb-item[data-aba]").forEach(btn =>
     btn.addEventListener("click", () => {
       const aba = btn.dataset.aba;
-      document.querySelectorAll(".btn-aba").forEach(b => b.classList.remove("ativo"));
+
+      // atualiza item ativo na sidebar
+      document.querySelectorAll(".sb-item[data-aba]").forEach(b => b.classList.remove("ativo"));
       btn.classList.add("ativo");
+
+      // mostra/oculta abas
       document.getElementById("aba-painel").classList.toggle("oculto", aba !== "painel");
       document.getElementById("aba-nps").classList.toggle("oculto", aba !== "nps");
+
+      // atualiza título no topbar
+      document.getElementById("topbar-titulo").textContent = TITULOS_ABA[aba] || "";
+
+      // inicia NPS na primeira vez
       if (aba === "nps") NPS.iniciar();
     }));
-});
+}
