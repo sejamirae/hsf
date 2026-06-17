@@ -195,9 +195,21 @@ body {
   font-size: .82rem; font-weight: 600; line-height: 1.35;
   overflow: hidden; transition: opacity .2s, width .25s;
 }
+/* ---- estado RECOLHIDO: chips uniformes e centrados ---- */
 #sidebar.colapsado .sb-label { opacity: 0; width: 0; }
-#sidebar.colapsado .sb-item { justify-content: center; }
-#sidebar.colapsado .sb-icon { margin: 0; }
+#sidebar.colapsado .sb-nav,
+#sidebar.colapsado .sb-rodape { padding-left: 0; padding-right: 0; }
+#sidebar.colapsado .sb-item {
+  justify-content: center; gap: 0; padding: 6px 0;
+  background: transparent !important; border-color: transparent !important;
+}
+#sidebar.colapsado .sb-icon { margin: 0 auto; }
+/* o destaque vai para o icone, nao para o item inteiro */
+#sidebar.colapsado .sb-item.ativo .sb-icon {
+  background: rgba(215,179,119,.22);
+  box-shadow: inset 0 0 0 1px rgba(215,179,119,.45);
+}
+#sidebar.colapsado .sb-item:hover .sb-icon { background: rgba(255,255,255,.14); }
 
 /* rodapé da sidebar */
 .sb-rodape {
@@ -422,15 +434,16 @@ td.td-alerta { color: var(--alerta); font-weight: 700; }
 td.vazio { text-align: center; color: var(--texto-sec); padding: 28px; }
 
 .tabela-rodape { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; margin-top: 14px; }
-#tabela-info { font-size: .78rem; color: var(--texto-sec); }
-#paginacao { display: flex; gap: 5px; }
-#paginacao button {
-  min-width: 34px; height: 34px; font-size: .82rem; cursor: pointer; color: var(--texto-pri);
+#tabela-info, #nps-tabela-info { font-size: .78rem; color: var(--texto-sec); }
+#paginacao, #nps-paginacao { display: flex; gap: 5px; flex-wrap: wrap; }
+#paginacao button, #nps-paginacao button {
+  min-width: 34px; height: 34px; padding: 0 8px; font-size: .82rem; cursor: pointer; color: var(--texto-pri);
   background: #FFFFFF; border: var(--r-px) solid var(--borda); border-radius: 9px; transition: .15s;
+  display: inline-flex; align-items: center; justify-content: center;
 }
-#paginacao button:hover:not(:disabled) { border-color: var(--dourado); }
-#paginacao button:disabled { opacity: .35; cursor: default; }
-#paginacao button.ativo {
+#paginacao button:hover:not(:disabled), #nps-paginacao button:hover:not(:disabled) { border-color: var(--dourado); }
+#paginacao button:disabled, #nps-paginacao button:disabled { opacity: .35; cursor: default; }
+#paginacao button.ativo, #nps-paginacao button.ativo {
   background: linear-gradient(180deg, #062F3A, #0B3F4D);
   color: #FFFFFF; border-color: transparent; font-weight: 700;
 }
