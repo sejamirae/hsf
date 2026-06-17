@@ -114,9 +114,6 @@ body {
 #app.pronto { opacity: 1; }
 
 /* ---- SIDEBAR ---- */
---sb-w: 240px;
---sb-w-col: 68px;
-
 #sidebar {
   width: 240px; flex-shrink: 0;
   display: flex; flex-direction: column;
@@ -131,26 +128,22 @@ body {
 
 /* topo da sidebar */
 .sb-topo {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 18px 16px 14px;
+  display: flex; align-items: center; gap: 10px;
+  padding: 16px 14px;
   border-bottom: var(--r-px) solid rgba(255,255,255,.08);
-  min-height: 80px;
+  min-height: 78px;
 }
 .sb-logos {
-  display: flex; flex-direction: column; gap: 6px;
-  overflow: hidden; transition: opacity .2s, width .25s;
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  flex: 1; min-width: 0;
+  background: #FFFFFF; border-radius: 12px;
+  padding: 10px 14px;
+  box-shadow: 0 4px 14px -6px rgba(0,0,0,.4);
+  overflow: hidden; transition: opacity .2s, padding .25s;
 }
-.sb-logos img.logo-mirae {
-  height: 28px; border-radius: 6px;
-  box-shadow: 0 2px 8px rgba(0,0,0,.3);
-  flex-shrink: 0;
-}
-.sb-logos img.logo-hsf {
-  height: 30px; border-radius: 6px;
-  background: rgba(255,255,255,.12); padding: 3px 6px;
-  flex-shrink: 0;
-}
-#sidebar.colapsado .sb-logos { opacity: 0; width: 0; overflow: hidden; }
+.sb-logos img.logo-mirae { height: 26px; width: auto; flex-shrink: 0; }
+.sb-logos img.logo-hsf   { height: 32px; width: auto; flex-shrink: 0; }
+#sidebar.colapsado .sb-logos { opacity: 0; width: 0; flex: 0; padding: 0; }
 
 #sb-toggle {
   width: 34px; height: 34px; flex-shrink: 0; cursor: pointer;
