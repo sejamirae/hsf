@@ -139,7 +139,7 @@ body {
   white-space: nowrap; overflow: hidden;
   transition: opacity .2s, width .25s;
 }
-#sidebar.colapsado .sb-brand { opacity: 0; width: 0; }
+#sidebar.colapsado .sb-brand { display: none; }
 
 #sb-toggle {
   width: 34px; height: 34px; flex-shrink: 0; cursor: pointer;
@@ -150,7 +150,7 @@ body {
 }
 #sb-toggle:hover { background: rgba(255,255,255,.16); color: #fff; }
 #sb-toggle svg { width: 18px; height: 18px; transition: transform .25s ease; }
-#sidebar.colapsado #sb-toggle { margin: 0 auto; }
+#sidebar.colapsado .sb-topo { justify-content: center; padding: 0; }
 #sidebar.colapsado #sb-toggle svg { transform: rotate(180deg); }
 
 /* label de seção */
@@ -481,6 +481,10 @@ td.vazio { text-align: center; color: var(--texto-sec); padding: 28px; }
   cursor: pointer; margin-left: auto;
 }
 .nps-toggle-coment input { accent-color: var(--dourado); width: 15px; height: 15px; cursor: pointer; }
+
+/* alinha cabecalhos da tabela NPS com as colunas (centro nos numericos) */
+#aba-nps thead th { text-align: center; }
+#aba-nps thead th:first-child, #aba-nps thead th:last-child { text-align: left; }
 
 /* ===================== MODAL DE CONFIGURACOES ===================== */
 #tela-config {

@@ -90,7 +90,6 @@ const Dashboard = (() => {
         renderTabela();
       }));
 
-    document.getElementById("btn-csv").addEventListener("click", exportarCSV);
     document.getElementById("btn-xlsx").addEventListener("click", exportarXLSX);
     document.getElementById("btn-sair").addEventListener("click", Auth.encerrarSessao);
   }
