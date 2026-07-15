@@ -289,12 +289,23 @@ const Data = (() => {
     return lerJSONP(u);   // JSONP: grava sem problemas de CORS
   }
 
+  /* ---------- exclui um ou mais dias do banco (via API) ---------- */
+  function excluirDia(dias) {
+    if (!CONFIG.API_URL) return Promise.reject(new Error("sem API"));
+    const lista = Array.isArray(dias) ? dias.join(",") : String(dias);
+    let u = CONFIG.API_URL + (CONFIG.API_URL.includes("?") ? "&" : "?")
+      + "action=deleteDia&dias=" + encodeURIComponent(lista);
+    if (CONFIG.API_TOKEN) u += "&token=" + encodeURIComponent(CONFIG.API_TOKEN);
+    return lerJSONP(u);
+  }
+
   return {
     carregar,
     registros: () => _registros,
     origem: () => _origem,
     config: () => _config,
     salvarConfig,
+    excluirDia,
     filtrarPeriodo,
     agregar,
     enriquecer,

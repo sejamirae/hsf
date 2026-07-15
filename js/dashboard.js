@@ -102,6 +102,23 @@ const Dashboard = (() => {
 
     on("btn-xlsx", "click", exportarXLSX);
     on("btn-sair", "click", Auth.encerrarSessao);
+
+    // excluir um dia direto da tabela (delegado)
+    document.getElementById("tabela-corpo").addEventListener("click", async (e) => {
+      const b = e.target.closest(".btn-del-dia");
+      if (!b) return;
+      const iso = b.dataset.del;
+      const [a, m, d] = iso.split("-");
+      if (!confirm(`Excluir os dados de ${d}/${m}/${a} do banco?\n\nEssa ação remove o dia da planilha. Você pode reimportar depois.`)) return;
+      b.disabled = true; b.textContent = "…";
+      try {
+        await Data.excluirDia(iso);
+        await recarregar();
+      } catch (err) {
+        alert("Não foi possível excluir: " + err.message);
+        b.disabled = false; b.textContent = "✕";
+      }
+    });
   }
 
   /* liga um evento a um elemento por id, ignorando em silencio se ele
@@ -568,6 +585,7 @@ const Dashboard = (() => {
     const ini = (estado.pagina - 1) * ipp;
     const pag = arr.slice(ini, ini + ipp);
 
+    const podeExcluir = Data.origem() === "api";
     document.getElementById("tabela-corpo").innerHTML = pag.map(r => `
       <tr>
         <td>${Data.fmtDiaLongo(r.data)}</td>
@@ -577,7 +595,8 @@ const Dashboard = (() => {
         <td>${fmtInt(r.intExt)}</td>
         <td style="color:${avaliar(r.convSF, "sf").cor};font-weight:700">${r.convSF.toFixed(1)}%</td>
         <td style="color:${avaliar(r.convExt, "ext").cor};font-weight:700">${r.convExt.toFixed(1)}%</td>
-      </tr>`).join("") || `<tr><td colspan="7" class="vazio">Nenhum registro no período.</td></tr>`;
+        <td class="td-acoes">${podeExcluir ? `<button class="btn-del-dia" data-del="${localISO(r.data)}" title="Excluir este dia do banco" aria-label="Excluir dia">✕</button>` : ""}</td>
+      </tr>`).join("") || `<tr><td colspan="8" class="vazio">Nenhum registro no período.</td></tr>`;
 
     document.getElementById("tabela-info").textContent =
       arr.length ? `${ini + 1}–${Math.min(ini + ipp, arr.length)} de ${arr.length} registros` : "0 registros";

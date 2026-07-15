@@ -438,6 +438,19 @@ td.td-ok { color: var(--sucesso); font-weight: 700; }
 td.td-alerta { color: var(--alerta); font-weight: 700; }
 td.vazio { text-align: center; color: var(--texto-sec); padding: 28px; }
 
+/* botao de excluir dia na tabela analitica */
+.th-acoes { width: 34px; }
+td.td-acoes { text-align: center; padding: 6px 8px; }
+.btn-del-dia {
+  width: 24px; height: 24px; border-radius: 7px; cursor: pointer;
+  font-size: .72rem; line-height: 1; color: var(--texto-sec);
+  background: transparent; border: var(--r-px) solid transparent;
+  opacity: 0; transition: opacity .15s, color .15s, border-color .15s, background .15s;
+}
+tbody tr:hover .btn-del-dia { opacity: .55; }
+.btn-del-dia:hover { opacity: 1; color: var(--alerta); border-color: var(--alerta); background: rgba(192,53,64,.08); }
+.btn-del-dia:disabled { cursor: wait; opacity: .5; }
+
 .tabela-rodape { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; margin-top: 14px; }
 #tabela-info, #nps-tabela-info { font-size: .78rem; color: var(--texto-sec); }
 #paginacao, #nps-paginacao { display: flex; gap: 5px; flex-wrap: wrap; }
@@ -546,6 +559,9 @@ td.vazio { text-align: center; color: var(--texto-sec); padding: 28px; }
 }
 .imp-aviso { font-size: .76rem; font-weight: 600; color: var(--alerta);
   background: rgba(192,53,64,.1); padding: 2px 10px; border-radius: 999px; }
+.imp-badge { font-size: .74rem; font-weight: 700; padding: 2px 10px; border-radius: 999px; }
+.imp-badge.nov { color: var(--sucesso); background: rgba(46,140,102,.12); }
+.imp-badge.atu { color: var(--dourado); background: var(--dourado-suave); }
 .imp-tab-scroll { max-height: 320px; overflow: auto; border: var(--r-px) solid var(--borda); border-radius: 10px; }
 table.imp-tab { width: 100%; border-collapse: collapse; font-size: .82rem; min-width: 420px; }
 table.imp-tab thead th {

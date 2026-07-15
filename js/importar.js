@@ -142,8 +142,15 @@ const Importar = (() => {
         const cEx = r.atExt ? (r.intExt / r.atExt * 100).toFixed(1) : "0.0";
         return `<tr><td>${fmtBR(r.dia)}</td><td>${r.atSF}</td><td>${r.atExt}</td><td>${r.intSF}</td><td>${r.intExt}</td><td>${cSF}%</td><td>${cEx}%</td></tr>`;
       }).join("");
+      // quantos ja existem no banco (serao atualizados) x novos
+      let existentes = new Set();
+      try { existentes = new Set((Data.registros() || []).map(r => r.data.toISOString().slice(0, 10))); } catch (e) {}
+      const nAtualiza = _registros.filter(r => existentes.has(r.dia)).length;
+      const nNovos = _registros.length - nAtualiza;
       previa.innerHTML = `
         <div class="imp-resumo">${_registros.length} dia(s) · ${fmtBR(_registros[0].dia)} a ${fmtBR(_registros[_registros.length - 1].dia)}
+          <span class="imp-badge nov">${nNovos} novo(s)</span>
+          <span class="imp-badge atu">${nAtualiza} atualiza</span>
           ${!_bufAtend ? '<span class="imp-aviso">⚠ sem arquivo de atendimentos</span>' : ""}
           ${!_bufIntern ? '<span class="imp-aviso">⚠ sem arquivo de internações</span>' : ""}
         </div>

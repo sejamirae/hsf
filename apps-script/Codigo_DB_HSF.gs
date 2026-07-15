@@ -50,9 +50,10 @@ function doGet(e) {
       PropertiesService.getScriptProperties().setProperty('HSF_CONFIG', e.parameter.config || '');
       return saida({ ok: true, salvo: true }, e);
     }
-    if (action === 'medicos') return saida({ ok: true, medicos: lerMedicos() }, e);
-    if (action === 'upsert')  return upsertDados(e);
-    if (action === 'nps')     return lerNPS(e);
+    if (action === 'medicos')   return saida({ ok: true, medicos: lerMedicos() }, e);
+    if (action === 'upsert')    return upsertDados(e);
+    if (action === 'deleteDia') return deleteDia(e);
+    if (action === 'nps')       return lerNPS(e);
 
     return lerDados(e);   // padrao: KPIs para o painel
   } catch (err) {
@@ -151,6 +152,28 @@ function upsertDados(e) {
 
   ordenarPorData(sheet);
   return saida({ ok: true, inseridos: inseridos, atualizados: atualizados }, e);
+}
+
+/* ---------- 3b) EXCLUIR DIA(S) ----------
+   Recebe e.parameter.dias = "2026-07-14" ou "2026-07-14,2026-07-15".
+   Remove as linhas correspondentes da aba DADOS. ------------------ */
+function deleteDia(e) {
+  const dias = String((e && e.parameter && e.parameter.dias) || '')
+    .split(',').map(s => s.trim().slice(0, 10)).filter(d => /^\d{4}-\d{2}-\d{2}$/.test(d));
+  if (!dias.length) return saida({ ok: false, erro: 'nenhuma data valida' }, e);
+  const alvo = {}; dias.forEach(d => alvo[d] = true);
+
+  const sheet = planilha().getSheetByName(ABA_DADOS);
+  if (!sheet || sheet.getLastRow() < 2) return saida({ ok: true, excluidos: 0 }, e);
+
+  const valores = sheet.getDataRange().getValues();
+  let excluidos = 0;
+  // de baixo para cima, para os indices nao se deslocarem
+  for (let i = valores.length - 1; i >= 1; i--) {
+    const d = formatarData(valores[i][0]);
+    if (d && alvo[d]) { sheet.deleteRow(i + 1); excluidos++; }
+  }
+  return saida({ ok: true, excluidos: excluidos }, e);
 }
 
 /* ---------- 4) NPS (planilha separada) ---------- */
