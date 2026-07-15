@@ -515,6 +515,49 @@ td.vazio { text-align: center; color: var(--texto-sec); padding: 28px; }
 }
 #nps-seg-limpar:hover { background: rgba(215,179,119,.3); }
 
+/* ===================== IMPORTAR DO MV ===================== */
+.btn-importar {
+  color: #FFFFFF !important;
+  background: linear-gradient(180deg, #062F3A, #0B3F4D) !important;
+  border-color: transparent !important;
+}
+.btn-importar:hover { filter: brightness(1.12); }
+
+.imp-card { width: min(760px, 96vw); }
+#imp-corpo { padding: 8px 24px 4px; }
+.imp-drop {
+  display: flex; align-items: center; justify-content: center;
+  padding: 22px; border: 1.5px dashed var(--borda-d); border-radius: 12px;
+  background: var(--dourado-suave); color: var(--dourado); font-weight: 600; font-size: .86rem;
+  cursor: pointer; transition: background .18s; text-align: center;
+}
+.imp-drop:hover { background: rgba(215,179,119,.28); }
+.imp-drop input { display: none; }
+
+#imp-arquivos { margin-top: 12px; display: flex; flex-direction: column; gap: 6px; }
+.imp-arq { font-size: .82rem; padding: 8px 12px; border-radius: 9px; border: var(--r-px) solid var(--borda); }
+.imp-arq.ok { color: var(--sucesso); background: rgba(46,140,102,.08); border-color: rgba(46,140,102,.3); }
+.imp-arq.erro { color: var(--alerta); background: rgba(192,53,64,.06); border-color: rgba(192,53,64,.3); }
+.imp-arq b { font-weight: 700; }
+
+.imp-resumo {
+  margin: 14px 0 8px; font-size: .84rem; font-weight: 600; color: var(--texto-pri);
+  display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+}
+.imp-aviso { font-size: .76rem; font-weight: 600; color: var(--alerta);
+  background: rgba(192,53,64,.1); padding: 2px 10px; border-radius: 999px; }
+.imp-tab-scroll { max-height: 320px; overflow: auto; border: var(--r-px) solid var(--borda); border-radius: 10px; }
+table.imp-tab { width: 100%; border-collapse: collapse; font-size: .82rem; min-width: 420px; }
+table.imp-tab thead th {
+  position: sticky; top: 0; background: #FAFAFA; text-align: right; padding: 9px 12px;
+  font-size: .68rem; text-transform: uppercase; letter-spacing: .6px; color: var(--texto-sec);
+  border-bottom: 1.5px solid var(--borda); white-space: nowrap;
+}
+table.imp-tab thead th:first-child { text-align: left; }
+table.imp-tab tbody td { text-align: right; padding: 8px 12px; border-bottom: var(--r-px) solid rgba(6,47,58,.05); font-variant-numeric: tabular-nums; }
+table.imp-tab tbody td:first-child { text-align: left; font-weight: 500; }
+.imp-vazio, #imp-previa .imp-vazio { padding: 20px; text-align: center; color: var(--texto-sec); font-size: .84rem; }
+
 /* ===================== MODAL DE CONFIGURACOES ===================== */
 #tela-config {
   position: fixed; inset: 0; z-index: 60;

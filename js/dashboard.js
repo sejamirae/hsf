@@ -38,6 +38,16 @@ const Dashboard = (() => {
     renderTudo();
   }
 
+  /* recarrega os dados do banco (usado apos importar do MV) */
+  async function recarregar() {
+    await Data.carregar();
+    const cfg = Data.config && Data.config();
+    if (cfg && cfg.sf && cfg.ext && Array.isArray(cfg.sf.bandas) && Array.isArray(cfg.ext.bandas)) FAIXAS = cfg;
+    document.getElementById("ultima-atualizacao").textContent =
+      "Atualizado em " + new Date().toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" });
+    renderTudo();
+  }
+
   /* ===================== EVENTOS ===================== */
   function ligarEventos() {
     document.querySelectorAll(".btn-periodo").forEach(b =>
@@ -714,7 +724,7 @@ const Dashboard = (() => {
     setTimeout(fecharConfig, 900);
   }
 
-  return { iniciar };
+  return { iniciar, recarregar };
 })();
 
 /* ===================== BOOTSTRAP ===================== */
@@ -722,6 +732,7 @@ window.addEventListener("DOMContentLoaded", async () => {
   await Auth.iniciar();      // bloqueia ate o login
   Dashboard.iniciar();
   iniciarSidebar();
+  if (typeof Importar !== "undefined") Importar.iniciar();
 });
 
 /* ===================== SIDEBAR + NAVEGAÇÃO ===================== */

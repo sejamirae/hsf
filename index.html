@@ -195,6 +195,7 @@
               </label>
               <button id="btn-limpar-busca" title="Limpar data">Limpar</button>
               <div class="export-btns">
+                <button id="btn-importar" class="btn-importar">⬆ Importar do MV</button>
                 <button id="btn-xlsx">Exportar Excel</button>
               </div>
             </div>
@@ -334,6 +335,32 @@
       </div>
     </div>
 
+    <!-- modal de importacao do MV -->
+    <div id="tela-importar" class="oculto">
+      <div class="cfg-card imp-card">
+        <div class="cfg-topo">
+          <h3>Importar relatórios do MV</h3>
+          <button id="imp-fechar" title="Fechar">✕</button>
+        </div>
+        <p class="cfg-ajuda">Selecione os <b>2 arquivos .xls</b> exportados do MV (atendimentos e internações). O sistema conta apenas os médicos <b>Porta</b> da Mirae e grava os números no banco.</p>
+        <div id="imp-corpo">
+          <label class="imp-drop">
+            <input id="imp-input" type="file" accept=".xls" multiple>
+            <span>Clique para escolher os arquivos (.xls)</span>
+          </label>
+          <div id="imp-arquivos"></div>
+          <div id="imp-previa"></div>
+        </div>
+        <div class="cfg-rodape">
+          <span id="imp-status"></span>
+          <div class="cfg-acoes">
+            <button id="imp-cancelar" class="cfg-btn-sec">Cancelar</button>
+            <button id="imp-gravar" class="cfg-btn-pri" disabled>Gravar no banco</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div><!-- /app -->
 
   <!-- bibliotecas -->
@@ -346,5 +373,6 @@
   <script src="js/data.js"></script>
   <script src="js/dashboard.js"></script>
   <script src="js/nps.js"></script>
+  <script src="js/importar.js"></script>
 </body>
 </html>

@@ -11,7 +11,7 @@ const CONFIG = {
        A planilha continua PRIVADA. Cole aqui a URL "/exec" do
        Web App publicado (veja apps-script/Codigo.gs).
        Se preencher API_URL, esta opcao tem prioridade. */
-  API_URL:   "https://script.google.com/macros/s/AKfycbwSoIsWkOOaRNARZQwHkaOPhJcoDs3m-Yg1pru9kDESSuqqkTIj_U93vZZtjN6TL-jM/exec",
+  API_URL:   "https://script.google.com/macros/s/AKfycbxnP-XmIzi-FtXThNWucIr_4C3W1ug1ziDEAZU2_h8NRyiOCMlKx09_UL4g8r6tcYM-zw/exec",
   API_TOKEN: "",                // opcional, igual ao TOKEN definido no Codigo.gs
   API_JSONP: false,             // mude para true se o navegador bloquear por CORS
 
