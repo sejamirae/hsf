@@ -559,12 +559,13 @@ table.imp-tab tbody td:first-child { text-align: left; font-weight: 500; }
 .imp-vazio, #imp-previa .imp-vazio { padding: 20px; text-align: center; color: var(--texto-sec); font-size: .84rem; }
 
 /* ===================== MODAL DE CONFIGURACOES ===================== */
-#tela-config {
+#tela-config, #tela-importar {
   position: fixed; inset: 0; z-index: 60;
   display: flex; align-items: center; justify-content: center;
   background: rgba(6,47,58,.45); backdrop-filter: blur(4px);
   animation: fadeIn .25s ease; padding: 20px;
 }
+#tela-config.oculto, #tela-importar.oculto { display: none !important; }
 .cfg-card {
   width: min(620px, 96vw); max-height: 90vh; overflow-y: auto;
   background: #FFFFFF; border-radius: 18px; box-shadow: var(--sombra-forte);
