@@ -757,7 +757,8 @@ window.addEventListener("DOMContentLoaded", async () => {
 /* ===================== SIDEBAR + NAVEGAÇÃO ===================== */
 const TITULOS_ABA = {
   painel: "KPI Conversão de Internações",
-  nps:    "CX NPS · Hospital São Francisco Cotia"
+  nps:    "CX NPS · Hospital São Francisco Cotia",
+  corpo:  "Corpo Clínico Mirae"
 };
 
 function iniciarSidebar() {
@@ -781,6 +782,7 @@ function iniciarSidebar() {
       // mostra/oculta abas
       document.getElementById("aba-painel").classList.toggle("oculto", aba !== "painel");
       document.getElementById("aba-nps").classList.toggle("oculto", aba !== "nps");
+      document.getElementById("aba-corpo").classList.toggle("oculto", aba !== "corpo");
 
       // atualiza título no topbar
       document.getElementById("topbar-titulo").textContent = TITULOS_ABA[aba] || "";
@@ -788,7 +790,8 @@ function iniciarSidebar() {
       // "Metas de Conversão" só faz sentido na aba KPI
       document.getElementById("btn-config").classList.toggle("oculto", aba !== "painel");
 
-      // inicia NPS na primeira vez
-      if (aba === "nps") NPS.iniciar();
+      // inicia módulos sob demanda
+      if (aba === "nps" && typeof NPS !== "undefined") NPS.iniciar();
+      if (aba === "corpo" && typeof Corpo !== "undefined") Corpo.iniciar();
     }));
 }

@@ -40,23 +40,33 @@ const Importar = (() => {
     return tot ? 2 * inter / tot : 0;
   }
 
-  /* ------- nucleo: transforma os 2 arquivos em registros diarios ------- */
+  /* ------- nucleo: transforma os 2 arquivos em registros diarios -------
+     Regras (definidas com a gestao):
+     - Atendimento = Tipo Atend. "URGENCIA" de medico do corpo clinico (por codigo)
+     - Internacao  = casada ao atendimento pelo ID (join) -> pega o codigo do
+       medico; conta se for do corpo clinico. Fallback por nome se o ID nao
+       estiver no arquivo de atendimentos. SF pela plano "SFS".            */
   function processar(bufAtend, bufIntern, medicos) {
     const codes = new Set(medicos.filter(m => m.codigo).map(m => String(m.codigo).trim()));
     const nomes = medicos.filter(m => m.nome).map(m => norm(m.nome));
-    const isPorta = (nm) => { const m = norm(nm); return m ? nomes.some(f => simil(f, m) >= 0.90) : false; };
+    const isCC = (nm) => { const m = norm(nm); return m ? nomes.some(f => simil(f, m) >= 0.90) : false; };
     const day = {};
     const get = (d) => day[d] || (day[d] = { dia: d, atSF: 0, atExt: 0, intSF: 0, intExt: 0 });
+    const amap = {};   // id do atendimento -> { cod }
 
     if (bufAtend) {
       let cur = null;
       for (const raw of aoaFrom(bufAtend).rows) {
         const row = raw.map(x => String(x).trim()); const j = row.join(" ");
-        const ht = row.some(x => reTime.test(x)), hi = row.some(x => reId.test(x));
+        const hi = reId.test(row[3] || ""), ht = row.some(x => reTime.test(x));
         const m = j.match(reDate);
         if (m && !(ht && hi)) cur = `${m[3]}-${m[2]}-${m[1]}`;
-        if (ht && hi && cur && codes.has(String(row[23]).trim())) {
-          if (j.toUpperCase().includes("SAGRADA FAMILIA")) get(cur).atSF++; else get(cur).atExt++;
+        if (hi && ht) {
+          const cod = String(row[23]).trim();
+          amap[row[3]] = { cod };
+          if (String(row[25]).trim() === "URGENCIA" && cur && codes.has(cod)) {
+            if (j.toUpperCase().includes("SAGRADA FAMILIA")) get(cur).atSF++; else get(cur).atExt++;
+          }
         }
       }
     }
@@ -65,10 +75,13 @@ const Importar = (() => {
       for (const raw of aoaFrom(bufIntern).rows) {
         const row = raw.map(x => String(x).trim()); const j = row.join(" ");
         if (j.includes("dico:")) { curmed = String(row[17]).trim() || null; continue; }
-        if (!row.some(x => reId.test(x))) continue;
-        const m = j.match(reDate); if (!m || !(curmed && isPorta(curmed))) continue;
+        if (!reId.test(row[5] || "")) continue;
+        const m = j.match(reDate); if (!m) continue;
+        const a = amap[row[5]];
+        const conta = (a && a.cod) ? codes.has(a.cod) : isCC(curmed);
+        if (!conta) continue;
         const dia = `${m[3]}-${m[2]}-${m[1]}`;
-        if (row.some(x => x.toUpperCase().startsWith("SFS"))) get(dia).intSF++; else get(dia).intExt++;
+        if (String(row[53]).trim().toUpperCase().startsWith("SFS")) get(dia).intSF++; else get(dia).intExt++;
       }
     }
     return Object.values(day).sort((a, b) => a.dia < b.dia ? -1 : 1);

@@ -75,6 +75,16 @@
           </span>
           <span class="sb-label">CX NPS · Hospital<br>São Francisco Cotia</span>
         </button>
+
+        <button class="sb-item" data-aba="corpo">
+          <span class="sb-icon">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="10" cy="6" r="3"/>
+              <path d="M4 17c0-3.3 2.7-5 6-5s6 1.7 6 5"/>
+            </svg>
+          </span>
+          <span class="sb-label">Corpo Clínico</span>
+        </button>
       </nav>
 
       <!-- rodapé da sidebar: config + sair -->
@@ -315,6 +325,27 @@
 
       </div><!-- /aba-nps -->
 
+      <!-- ===================== ABA CORPO CLÍNICO ===================== -->
+      <div id="aba-corpo" class="oculto">
+        <main>
+          <section class="tabela-card">
+            <div class="cc-topbar">
+              <div class="cc-titulo">
+                <h3>Corpo Clínico Mirae</h3>
+                <span id="cc-resumo"></span>
+              </div>
+              <div class="cc-acoes">
+                <input id="cc-busca" type="search" placeholder="Buscar por nome, código ou CRM…">
+                <button id="cc-add">+ Adicionar médico</button>
+              </div>
+            </div>
+            <p class="cc-ajuda">As alterações são salvas automaticamente no banco. O <b>Código MV</b> é o que liga o médico aos relatórios (atendimentos e internações).</p>
+            <div id="cc-lista" class="cc-lista"></div>
+          </section>
+          <p class="rodape-creditos">Desenvolvido por <b>Mirae</b> · Painel confidencial · HSF</p>
+        </main>
+      </div><!-- /aba-corpo -->
+
     </div><!-- /conteudo -->
 
     <!-- modal de configuracoes -->
@@ -375,5 +406,6 @@
   <script src="js/dashboard.js"></script>
   <script src="js/nps.js"></script>
   <script src="js/importar.js"></script>
+  <script src="js/corpo.js"></script>
 </body>
 </html>

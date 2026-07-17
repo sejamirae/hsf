@@ -562,6 +562,84 @@ tbody tr:hover .btn-del-dia { opacity: .55; }
 .imp-badge { font-size: .74rem; font-weight: 700; padding: 2px 10px; border-radius: 999px; }
 .imp-badge.nov { color: var(--sucesso); background: rgba(46,140,102,.12); }
 .imp-badge.atu { color: var(--dourado); background: var(--dourado-suave); }
+
+/* ===================== CORPO CLÍNICO ===================== */
+.cc-topbar {
+  display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
+  justify-content: space-between; margin-bottom: 6px;
+}
+.cc-titulo { display: flex; flex-direction: column; gap: 2px; }
+.cc-titulo h3 {
+  font-size: .92rem; color: var(--texto-pri); font-weight: 700;
+  display: flex; align-items: center; gap: 9px;
+}
+.cc-titulo h3::before {
+  content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--dourado-pal);
+  box-shadow: 0 0 10px rgba(215,179,119,.6);
+}
+#cc-resumo { font-size: .76rem; color: var(--texto-sec); padding-left: 16px; }
+.cc-acoes { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+#cc-busca {
+  background: #FAFAFA; border: var(--r-px) solid var(--borda); color: var(--texto-pri);
+  padding: 9px 14px; border-radius: 10px; font-size: .84rem; outline: none;
+  min-width: 220px; transition: .18s;
+}
+#cc-busca:focus { border-color: var(--dourado); background: #FFFFFF; box-shadow: 0 0 0 3px var(--dourado-suave); }
+#cc-add {
+  font-size: .84rem; font-weight: 700; cursor: pointer; color: #FFFFFF; white-space: nowrap;
+  background: linear-gradient(180deg, #062F3A, #0B3F4D); border: none;
+  padding: 10px 16px; border-radius: 10px; box-shadow: 0 8px 18px -10px rgba(6,47,58,.5);
+}
+#cc-add:hover { filter: brightness(1.1); }
+.cc-ajuda { font-size: .8rem; color: var(--texto-sec); margin: 4px 0 16px; }
+.cc-ajuda b { color: var(--texto-pri); }
+
+.cc-lista { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
+.cc-carregando, .cc-vazio { color: var(--texto-sec); font-size: .86rem; padding: 20px; text-align: center; grid-column: 1/-1; }
+
+.cc-card {
+  background: #FFFFFF; border: var(--r-px) solid var(--borda); border-radius: 14px;
+  padding: 14px 16px 12px; box-shadow: var(--sombra);
+  transition: border-color .2s, box-shadow .2s;
+}
+.cc-card:hover { border-color: var(--borda-d); }
+.cc-card.sem-cod { border-left: 3px solid var(--dourado); }
+.cc-topo { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; }
+.cc-nome {
+  flex: 1; min-width: 0; font-size: .92rem; font-weight: 700; color: var(--texto-pri);
+  border: none; border-bottom: 1.5px solid transparent; background: transparent;
+  padding: 4px 2px; outline: none; transition: border-color .18s;
+}
+.cc-nome:focus { border-bottom-color: var(--dourado); }
+.cc-del {
+  width: 28px; height: 28px; flex: none; border-radius: 8px; cursor: pointer; font-size: .76rem;
+  color: var(--texto-sec); background: #FFFFFF; border: var(--r-px) solid var(--borda); transition: .15s;
+}
+.cc-del:hover { border-color: var(--alerta); color: var(--alerta); background: rgba(192,53,64,.06); }
+
+.cc-campos { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 10px; }
+.cc-campos label {
+  display: flex; flex-direction: column; gap: 3px;
+  font-size: .64rem; text-transform: uppercase; letter-spacing: .6px; color: var(--texto-sec); font-weight: 700;
+}
+.cc-campos input {
+  font-size: .84rem; font-weight: 500; color: var(--texto-pri); text-transform: none; letter-spacing: 0;
+  background: #FAFAFA; border: var(--r-px) solid var(--borda); border-radius: 8px; padding: 8px 10px; outline: none;
+  transition: .15s; width: 100%;
+}
+.cc-campos input:focus { border-color: var(--dourado); background: #FFFFFF; box-shadow: 0 0 0 3px var(--dourado-suave); }
+
+.cc-rodape { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 10px; min-height: 18px; }
+.cc-aviso { font-size: .7rem; font-weight: 600; color: var(--dourado); }
+.cc-status { font-size: .72rem; font-weight: 600; margin-left: auto; }
+.cc-status.salvando { color: var(--texto-sec); }
+.cc-status.ok { color: var(--sucesso); }
+.cc-status.erro { color: var(--alerta); }
+
+@media (max-width: 560px) {
+  .cc-acoes { width: 100%; }
+  #cc-busca { flex: 1; min-width: 0; }
+}
 .imp-tab-scroll { max-height: 320px; overflow: auto; border: var(--r-px) solid var(--borda); border-radius: 10px; }
 table.imp-tab { width: 100%; border-collapse: collapse; font-size: .82rem; min-width: 420px; }
 table.imp-tab thead th {
